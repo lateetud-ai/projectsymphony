@@ -187,7 +187,7 @@
 <!-- ═══ BUNDLE GATES ═══ -->
 <div id="pane-bundles" class="pane">
   <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-    <button class="btn" onclick="openModal('editBundle','RAFL')">Edit RAFL bundle</button>
+    <button class="btn" onclick="openModal('editBundle','RPFL')">Edit RPFL bundle</button>
     <button class="btn" onclick="openModal('editBundle','MAA')">Edit MAA bundle</button>
     <button class="btn" onclick="openModal('editBundle','RAF')">Edit RAF bundle</button>
   </div>
@@ -273,7 +273,7 @@
     <div class="modal-hdr"><span class="modal-title">Program settings</span><button class="btn-sm" onclick="closeModal('settings')">&#10005;</button></div>
     <div class="form-row"><label>Project name</label><input type="text" id="s-projname"></div>
     <div class="form-grid">
-      <div class="form-row"><label>RAFL target date</label><input type="date" id="s-rafl-date"></div>
+      <div class="form-row"><label>RPFL target date</label><input type="date" id="s-RPFL-date"></div>
       <div class="form-row"><label>MAA target date</label><input type="date" id="s-maa-date"></div>
       <div class="form-row"><label>RAF target date</label><input type="date" id="s-raf-date"></div>
       <div class="form-row"><label>Program RAG</label>
@@ -432,18 +432,18 @@
 
 <script>
 const MODULES = ['Forecasting','Cost Intelligence','Provider','Facility'];
-const PRACTICES = ['RAFL','MAA','RAF'];
+const PRACTICES = ['RPFL','MAA','RAF'];
 const RAG_COLOR = {GREEN:'#639922',AMBER:'#EF9F27',RED:'#E24B4A'};
 const STATUS_BADGE = {Done:'b-done','In Progress':'b-ip','At Risk':'b-risk','Not Started':'b-ns',Blocked:'b-blk'};
 const STORAGE_KEY = 'pmo_symphony_v1';
 
 let D = {
-  settings:{projName:'ProjectSymphony — Core Platform Access',progRag:'AMBER',raflDate:'2026-04-27',maaDate:'2026-05-04',rafDate:'2026-05-15'},
-  execSummary:'ProjectSymphony Core Platform Access is in active delivery across three practice gates: RAFL (Apr 27), MAA (May 4), and RAF (May 15). All four modules must bundle and launch together per practice — no partial releases. Engineering foundations (schema mapping, cross-database reporting) are complete. Active focus: data-model gap resolution, staging normalization, functional validation. This phase is accuracy-first; quality of validation is the primary success metric.',
-  completed:['Schema mapping completed — SymphonyMaster + SymphonyTenant','Cross-database reporting design finalized','WorkList gap identified and escalated','RAFL staging environment provisioned','Forecasting module functional spec signed off'],
-  inprogress:['WorkList + Location mapping resolution — target Apr 23','Staging data normalization sprint','Date/DOW coverage logic QA pass — RAFL','Cost Intelligence integration wiring for RAFL','RPCE logic spec review with backend'],
+  settings:{projName:'ProjectSymphony — Core Platform Access',progRag:'AMBER',RPFLDate:'2026-04-27',maaDate:'2026-05-04',rafDate:'2026-05-15'},
+  execSummary:'ProjectSymphony Core Platform Access is in active delivery across three practice gates: RPFL (Apr 27), MAA (May 4), and RAF (May 15). All four modules must bundle and launch together per practice — no partial releases. Engineering foundations (schema mapping, cross-database reporting) are complete. Active focus: data-model gap resolution, staging normalization, functional validation. This phase is accuracy-first; quality of validation is the primary success metric.',
+  completed:['Schema mapping completed — SymphonyMaster + SymphonyTenant','Cross-database reporting design finalized','WorkList gap identified and escalated','RPFL staging environment provisioned','Forecasting module functional spec signed off'],
+  inprogress:['WorkList + Location mapping resolution — target Apr 23','Staging data normalization sprint','Date/DOW coverage logic QA pass — RPFL','Cost Intelligence integration wiring for RPFL','RPCE logic spec review with backend'],
   bundles:{
-    RAFL:{rag:'AMBER',blocker:'WorkList mapping unresolved; Location normalization pending',decision:'Approve WorkList mapping approach by Apr 23',conf:75,
+    RPFL:{rag:'AMBER',blocker:'WorkList mapping unresolved; Location normalization pending',decision:'Approve WorkList mapping approach by Apr 23',conf:75,
       modules:{
         Forecasting:{status:'In Progress',pct:70,rag:'AMBER',dep:'WorkList gap closure',val:60,gaps:'Date/DOW logic, WorkList fields'},
         'Cost Intelligence':{status:'In Progress',pct:65,rag:'AMBER',dep:'Staging normalization',val:55,gaps:'Staging normalization'},
@@ -451,7 +451,7 @@ let D = {
         Facility:{status:'In Progress',pct:55,rag:'AMBER',dep:'Location mapping',val:45,gaps:'Location mapping'}}},
     MAA:{rag:'AMBER',blocker:'SubPractice mapping TBD; staging data not normalized',decision:'Confirm SubPractice data ownership by Apr 25',conf:65,
       modules:{
-        Forecasting:{status:'In Progress',pct:40,rag:'AMBER',dep:'RAFL learnings + MAA data load',val:10,gaps:'MAA data load pending'},
+        Forecasting:{status:'In Progress',pct:40,rag:'AMBER',dep:'RPFL learnings + MAA data load',val:10,gaps:'MAA data load pending'},
         'Cost Intelligence':{status:'In Progress',pct:35,rag:'AMBER',dep:'MAA staging normalization',val:10,gaps:'MAA staging'},
         Provider:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'},
         Facility:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'}}},
@@ -463,31 +463,31 @@ let D = {
         Facility:{status:'Not Started',pct:0,rag:'RED',dep:'Location finalization',val:0,gaps:'Location finalization'}}}
   },
   risks:[
-    {risk:'WorkList mapping gap unresolved',practice:'RAFL (Apr 27)',rag:'RED',likelihood:4.5,impact:4.5,mitigation:'Engineering to confirm mapping source by Apr 23',owner:'<fill>',due:'Apr 23'},
+    {risk:'WorkList mapping gap unresolved',practice:'RPFL (Apr 27)',rag:'RED',likelihood:4.5,impact:4.5,mitigation:'Engineering to confirm mapping source by Apr 23',owner:'<fill>',due:'Apr 23'},
     {risk:'Backend/frontend integration churn',practice:'MAA + RAF',rag:'RED',likelihood:3.5,impact:4.0,mitigation:'Freeze interfaces Apr 28; assign stability owner',owner:'<fill>',due:'Apr 28'},
     {risk:'Staging data not normalized',practice:'All practices',rag:'AMBER',likelihood:3.0,impact:3.0,mitigation:'Data eng sprint Apr 22–24',owner:'<fill>',due:'Apr 24'},
-    {risk:'Date/DOW coverage logic not validated',practice:'RAFL + MAA',rag:'AMBER',likelihood:3.0,impact:3.5,mitigation:'QA pass Apr 22–24',owner:'<fill>',due:'Apr 24'},
+    {risk:'Date/DOW coverage logic not validated',practice:'RPFL + MAA',rag:'AMBER',likelihood:3.0,impact:3.5,mitigation:'QA pass Apr 22–24',owner:'<fill>',due:'Apr 24'},
     {risk:'SubPractice mapping not confirmed',practice:'MAA (May 4)',rag:'AMBER',likelihood:3.5,impact:3.5,mitigation:'Confirm ownership with MAA practice lead by Apr 25',owner:'<fill>',due:'Apr 25'},
     {risk:'RPCE logic undefined for RAF',practice:'RAF (May 15)',rag:'AMBER',likelihood:2.5,impact:3.5,mitigation:'RPCE spec review May 1 with backend',owner:'<fill>',due:'May 1'}
   ],
   decisions:[
-    {decision:'Approve WorkList mapping approach or provide alternate source',needed:'Apr 23',practice:'RAFL',owner:'<fill>',status:'Open',consequence:'RAFL bundle cannot complete validation; Apr 27 at risk'},
+    {decision:'Approve WorkList mapping approach or provide alternate source',needed:'Apr 23',practice:'RPFL',owner:'<fill>',status:'Open',consequence:'RPFL bundle cannot complete validation; Apr 27 at risk'},
     {decision:'Confirm SubPractice data ownership for MAA',needed:'Apr 25',practice:'MAA',owner:'<fill>',status:'Open',consequence:'Provider + Facility MAA cannot start; May 4 at risk'},
     {decision:'Approve dedicated integration stability resource',needed:'Apr 25',practice:'MAA + RAF',owner:'<fill>',status:'Open',consequence:'Integration churn continues; both MAA and RAF threatened'}
   ],
   gongo:{
-    RAFL:{criteria:[{text:'All 4 modules passing staging validation',status:'In Progress'},{text:'WorkList mapping confirmed and tested',status:'Blocked'},{text:'Date/DOW coverage logic validated',status:'In Progress'},{text:'Staging data normalized',status:'Blocked'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from practice lead',status:'Not Started'}]},
-    MAA:{criteria:[{text:'RAFL lessons applied to MAA config',status:'Not Started'},{text:'SubPractice mapping confirmed and tested',status:'Blocked'},{text:'MAA staging data normalized',status:'Not Started'},{text:'All 4 modules regression-passed',status:'Not Started'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from MAA lead',status:'Not Started'}]},
+    RPFL:{criteria:[{text:'All 4 modules passing staging validation',status:'In Progress'},{text:'WorkList mapping confirmed and tested',status:'Blocked'},{text:'Date/DOW coverage logic validated',status:'In Progress'},{text:'Staging data normalized',status:'Blocked'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from practice lead',status:'Not Started'}]},
+    MAA:{criteria:[{text:'RPFL lessons applied to MAA config',status:'Not Started'},{text:'SubPractice mapping confirmed and tested',status:'Blocked'},{text:'MAA staging data normalized',status:'Not Started'},{text:'All 4 modules regression-passed',status:'Not Started'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from MAA lead',status:'Not Started'}]},
     RAF:{criteria:[{text:'RPCE logic finalized and validated',status:'Blocked'},{text:'Location mapping confirmed',status:'Blocked'},{text:'Integration interfaces stable (freeze Apr 28)',status:'Not Started'},{text:'Full 4-module regression on RAF staging',status:'Not Started'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from RAF lead',status:'Not Started'}]}
   },
   plan:[
-    {date:'Apr 21–23',item:'WorkList + Location mapping resolution',practice:'RAFL',owner:'<fill>',status:'In Progress'},
+    {date:'Apr 21–23',item:'WorkList + Location mapping resolution',practice:'RPFL',owner:'<fill>',status:'In Progress'},
     {date:'Apr 22–24',item:'Staging data normalization sprint',practice:'All',owner:'<fill>',status:'In Progress'},
-    {date:'Apr 22–24',item:'Date/DOW coverage logic QA pass',practice:'RAFL',owner:'<fill>',status:'In Progress'},
-    {date:'Apr 23',item:'RPCE logic spec review',practice:'RAFL + RAF',owner:'<fill>',status:'Not Started'},
-    {date:'Apr 24–25',item:'RAFL bundle integration test',practice:'RAFL',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 22–24',item:'Date/DOW coverage logic QA pass',practice:'RPFL',owner:'<fill>',status:'In Progress'},
+    {date:'Apr 23',item:'RPCE logic spec review',practice:'RPFL + RAF',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 24–25',item:'RPFL bundle integration test',practice:'RPFL',owner:'<fill>',status:'Not Started'},
     {date:'Apr 25',item:'SubPractice data ownership confirmed',practice:'MAA',owner:'<fill>',status:'Not Started'},
-    {date:'Apr 27',item:'RAFL launch',practice:'RAFL',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 27',item:'RPFL launch',practice:'RPFL',owner:'<fill>',status:'Not Started'},
     {date:'Apr 28',item:'Integration interface freeze',practice:'MAA + RAF',owner:'<fill>',status:'Not Started'},
     {date:'Apr 28–May 2',item:'MAA 4-module validation',practice:'MAA',owner:'<fill>',status:'Not Started'},
     {date:'May 4',item:'MAA launch',practice:'MAA',owner:'<fill>',status:'Not Started'},
@@ -495,11 +495,11 @@ let D = {
     {date:'May 15',item:'RAF launch',practice:'RAF',owner:'<fill>',status:'Not Started'}
   ],
   script:{
-    open:'Core Platform Access is in active delivery. All four modules bundle and launch together per practice — no partial releases. RAFL is April 27, MAA May 4, RAF May 15. Program is Amber: engineering foundations complete; three active blockers need leadership decisions this week.',
-    wins:'1. Schema mapping and cross-database reporting design are done — foundational engineering complete.\n2. RAFL staging is provisioned; 4-module integration testing is underway.\n3. All functional specs signed off; team is execution-focused.',
-    risks:'1. WorkList mapping unresolved — must close by Apr 23 or RAFL slips.\n2. Staging data normalization incomplete — risks false-pass validation.\n3. Integration churn creating re-test cycles across all modules.',
-    asks:'1. Decision by Apr 23: approve WorkList mapping approach — RAFL gate blocker.\n2. Confirm SubPractice data ownership by Apr 25 — MAA Provider + Facility cannot start.\n3. Approve dedicated integration stability owner by Apr 25 — protects MAA and RAF.',
-    close:'With these three decisions resolved this week, RAFL stays on track at 75% confidence. MAA and RAF follow sequentially. We need leadership alignment on data ownership and integration stability to protect all three dates.',
+    open:'Core Platform Access is in active delivery. All four modules bundle and launch together per practice — no partial releases. RPFL is April 27, MAA May 4, RAF May 15. Program is Amber: engineering foundations complete; three active blockers need leadership decisions this week.',
+    wins:'1. Schema mapping and cross-database reporting design are done — foundational engineering complete.\n2. RPFL staging is provisioned; 4-module integration testing is underway.\n3. All functional specs signed off; team is execution-focused.',
+    risks:'1. WorkList mapping unresolved — must close by Apr 23 or RPFL slips.\n2. Staging data normalization incomplete — risks false-pass validation.\n3. Integration churn creating re-test cycles across all modules.',
+    asks:'1. Decision by Apr 23: approve WorkList mapping approach — RPFL gate blocker.\n2. Confirm SubPractice data ownership by Apr 25 — MAA Provider + Facility cannot start.\n3. Approve dedicated integration stability owner by Apr 25 — protects MAA and RAF.',
+    close:'With these three decisions resolved this week, RPFL stays on track at 75% confidence. MAA and RAF follow sequentially. We need leadership alignment on data ownership and integration stability to protect all three dates.',
     execask:'1. WorkList mapping decision — Apr 23 — Owner: <fill>\n2. SubPractice data ownership — Apr 25 — Owner: <fill>\n3. Integration stability resource — Apr 25 — Owner: <fill>'
   }
 };
@@ -566,7 +566,7 @@ function renderKPIs(){
   const allPcts = PRACTICES.flatMap(p=>MODULES.map(m=>D.bundles[p].modules[m].val||0));
   const avgVal = Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length);
   const items = [
-    {l:'Days to RAFL',v:d(D.settings.raflDate),s:fmtDate(D.settings.raflDate)},
+    {l:'Days to RPFL',v:d(D.settings.RPFLDate),s:fmtDate(D.settings.RPFLDate)},
     {l:'Days to MAA',v:d(D.settings.maaDate),s:fmtDate(D.settings.maaDate)},
     {l:'Days to RAF',v:d(D.settings.rafDate),s:fmtDate(D.settings.rafDate)},
     {l:'Open P1 risks',v:openR,s:'RED status',danger:openR>0},
@@ -804,8 +804,8 @@ function renderTimeline(){
     {label:'Data normalization',start:1,end:3,color:'#534AB7'},
     {label:'DOW / QA pass',start:1,end:3,color:'#534AB7'},
     {label:'WorkList fix',start:0,end:2,color:'#E24B4A'},
-    {label:'RAFL validation',start:2,end:5,color:'#639922'},
-    {label:'RAFL go/no-go',start:5,end:6,color:'#639922'},
+    {label:'RPFL validation',start:2,end:5,color:'#639922'},
+    {label:'RPFL go/no-go',start:5,end:6,color:'#639922'},
     {label:'MAA prep',start:4,end:7,color:'#EF9F27'},
     {label:'Integration freeze',start:7,end:7.5,color:'#185FA5'},
     {label:'MAA validation',start:7,end:12,color:'#EF9F27'},
@@ -813,9 +813,9 @@ function renderTimeline(){
     {label:'RAF validation',start:11,end:23,color:'#E24B4A'},
     {label:'RAF go/no-go',start:23,end:25,color:'#E24B4A'}
   ];
-  const ms=[{day:6,color:'#639922',lbl:'RAFL'},{day:13,color:'#EF9F27',lbl:'MAA'},{day:24,color:'#E24B4A',lbl:'RAF'}];
+  const ms=[{day:6,color:'#639922',lbl:'RPFL'},{day:13,color:'#EF9F27',lbl:'MAA'},{day:24,color:'#E24B4A',lbl:'RAF'}];
   let html=`<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-bottom:14px">
-    ${ms.map(m=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:${m.color};border-radius:2px;display:inline-block"></span>${m.lbl} ${m.lbl==='RAFL'?fmtDate(D.settings.raflDate):m.lbl==='MAA'?fmtDate(D.settings.maaDate):fmtDate(D.settings.rafDate)}</span>`).join('')}
+    ${ms.map(m=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:${m.color};border-radius:2px;display:inline-block"></span>${m.lbl} ${m.lbl==='RPFL'?fmtDate(D.settings.RPFLDate):m.lbl==='MAA'?fmtDate(D.settings.maaDate):fmtDate(D.settings.rafDate)}</span>`).join('')}
   </div>`;
   tracks.forEach(t=>{
     const left=Math.round((t.start/total)*100), width=Math.max(Math.round(((t.end-t.start)/total)*100),2);
@@ -866,7 +866,7 @@ function openModal(id, arg){
   if(id==='settings'){
     document.getElementById('s-projname').value=D.settings.projName;
     document.getElementById('s-prog-rag').value=D.settings.progRag;
-    document.getElementById('s-rafl-date').value=D.settings.raflDate;
+    document.getElementById('s-RPFL-date').value=D.settings.RPFLDate;
     document.getElementById('s-maa-date').value=D.settings.maaDate;
     document.getElementById('s-raf-date').value=D.settings.rafDate;
   }
@@ -893,7 +893,7 @@ function saveBundleEdit(){
 function saveSettings(){
   D.settings.projName=document.getElementById('s-projname').value;
   D.settings.progRag=document.getElementById('s-prog-rag').value;
-  D.settings.raflDate=document.getElementById('s-rafl-date').value;
+  D.settings.RPFLDate=document.getElementById('s-RPFL-date').value;
   D.settings.maaDate=document.getElementById('s-maa-date').value;
   D.settings.rafDate=document.getElementById('s-raf-date').value;
   closeModal('settings'); renderAll(); showToast('Settings updated');
@@ -901,10 +901,10 @@ function saveSettings(){
 
 /* ── CHARTS ── */
 function renderCharts(){
-  const valData=MODULES.map(m=>({r:D.bundles.RAFL.modules[m].val||0,m:D.bundles.MAA.modules[m].val||0,f:D.bundles.RAF.modules[m].val||0}));
+  const valData=MODULES.map(m=>({r:D.bundles.RPFL.modules[m].val||0,m:D.bundles.MAA.modules[m].val||0,f:D.bundles.RAF.modules[m].val||0}));
   if(charts.val){charts.val.destroy();}
   const vc=document.getElementById('chart-validation');
-  if(vc) charts.val=new Chart(vc,{type:'bar',data:{labels:MODULES.map(m=>m.length>10?m.slice(0,10)+'…':m),datasets:[{label:'RAFL',data:valData.map(d=>d.r),backgroundColor:'#378ADD'},{label:'MAA',data:valData.map(d=>d.m),backgroundColor:'#EF9F27'},{label:'RAF',data:valData.map(d=>d.f),backgroundColor:'#E24B4A'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
+  if(vc) charts.val=new Chart(vc,{type:'bar',data:{labels:MODULES.map(m=>m.length>10?m.slice(0,10)+'…':m),datasets:[{label:'RPFL',data:valData.map(d=>d.r),backgroundColor:'#378ADD'},{label:'MAA',data:valData.map(d=>d.m),backgroundColor:'#EF9F27'},{label:'RAF',data:valData.map(d=>d.f),backgroundColor:'#E24B4A'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
 
   const compData=MODULES.map(m=>Math.round(PRACTICES.reduce((a,p)=>a+D.bundles[p].modules[m].pct,0)/PRACTICES.length));
   if(charts.comp){charts.comp.destroy();}
