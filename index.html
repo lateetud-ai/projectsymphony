@@ -7,144 +7,201 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root {
-    --bg: #ffffff; --bg2: #f5f5f4; --bg3: #eeece8;
-    --text: #1a1a18; --text2: #6b6b66; --text3: #9b9b96;
-    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
-    --info-bg: #e6f1fb; --info-text: #0c447c; --info-border: #85b7eb;
-    --success-bg: #eaf3de; --success-text: #3b6d11; --success-border: #97c459;
-    --warn-bg: #faeeda; --warn-text: #854f0b; --warn-border: #ef9f27;
-    --danger-bg: #fcebeb; --danger-text: #a32d2d; --danger-border: #f09595;
-    --radius: 8px; --radius-lg: 12px;
-    --green: #639922; --amber: #EF9F27; --red: #E24B4A;
-    --blue: #378ADD; --purple: #534AB7;
+    --bg:#ffffff;--bg2:#f5f5f4;--bg3:#eeece8;
+    --text:#1a1a18;--text2:#6b6b66;--text3:#9b9b96;
+    --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+    --info-bg:#e6f1fb;--info-text:#0c447c;--info-border:#85b7eb;
+    --success-bg:#eaf3de;--success-text:#3b6d11;--success-border:#97c459;
+    --warn-bg:#faeeda;--warn-text:#854f0b;--warn-border:#ef9f27;
+    --danger-bg:#fcebeb;--danger-text:#a32d2d;--danger-border:#f09595;
+    --radius:8px;--radius-lg:12px;
+    --green:#639922;--amber:#EF9F27;--red:#E24B4A;--blue:#378ADD;--purple:#534AB7;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #333330;
-      --text: #f0efea; --text2: #a8a8a2; --text3: #6b6b66;
-      --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
-      --info-bg: #0c2d4a; --info-text: #85b7eb;
-      --success-bg: #1a2f0a; --success-text: #97c459;
-      --warn-bg: #2e1e05; --warn-text: #FAC775;
-      --danger-bg: #2e0a0a; --danger-text: #F09595;
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1e1e1c;--bg2:#2a2a28;--bg3:#333330;
+      --text:#f0efea;--text2:#a8a8a2;--text3:#6b6b66;
+      --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22);
+      --info-bg:#0c2d4a;--info-text:#85b7eb;
+      --success-bg:#1a2f0a;--success-text:#97c459;
+      --warn-bg:#2e1e05;--warn-text:#FAC775;
+      --danger-bg:#2e0a0a;--danger-text:#F09595;
     }
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; background: var(--bg3); color: var(--text); line-height: 1.5; }
-  .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;background:var(--bg3);color:var(--text);line-height:1.5}
+  .page{max-width:1100px;margin:0 auto;padding:20px 16px}
+
+  /* CONFIG BANNER */
+  .config-banner{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px}
+  .config-banner .icon{font-size:18px;flex-shrink:0;margin-top:1px}
+  .config-banner h3{font-size:13px;font-weight:700;color:var(--warn-text);margin-bottom:4px}
+  .config-banner p{font-size:12px;color:var(--warn-text);line-height:1.5;margin-bottom:8px}
+  .config-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .config-banner input{font-family:inherit;font-size:12px;color:var(--text);background:var(--bg);border:1px solid var(--warn-border);border-radius:6px;padding:7px 10px;width:100%}
+  .config-banner input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px rgba(239,159,39,.2)}
+  .config-status{font-size:11px;margin-top:6px;padding:5px 10px;border-radius:6px;display:inline-block}
+  .status-ok{background:var(--success-bg);color:var(--success-text)}
+  .status-err{background:var(--danger-bg);color:var(--danger-text)}
+  .status-pending{background:var(--bg2);color:var(--text2)}
 
   /* TOPBAR */
-  .topbar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-  .topbar h1 { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
-  .topbar p { font-size: 11px; color: var(--text2); }
-  .topbar-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .topbar{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  .topbar h1{font-size:17px;font-weight:700;margin-bottom:2px}
+  .topbar p{font-size:11px;color:var(--text2)}
+  .topbar-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 
   /* NAV */
-  .nav-wrap { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 6px 10px; margin-bottom: 14px; display: flex; gap: 2px; flex-wrap: wrap; }
-  .nav-btn { padding: 7px 14px; font-size: 12px; border: none; background: none; cursor: pointer; color: var(--text2); border-radius: var(--radius); font-family: inherit; }
-  .nav-btn:hover { background: var(--bg2); color: var(--text); }
-  .nav-btn.active { background: var(--bg2); color: var(--text); font-weight: 600; }
-  .pane { display: none; } .pane.on { display: block; }
+  .nav-wrap{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:6px 10px;margin-bottom:14px;display:flex;gap:2px;flex-wrap:wrap}
+  .nav-btn{padding:7px 14px;font-size:12px;border:none;background:none;cursor:pointer;color:var(--text2);border-radius:var(--radius);font-family:inherit;transition:all .15s}
+  .nav-btn:hover{background:var(--bg2);color:var(--text)}
+  .nav-btn.active{background:var(--bg2);color:var(--text);font-weight:700}
+  .pane{display:none}.pane.on{display:block}
 
   /* BUTTONS */
-  .btn { padding: 7px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); cursor: pointer; font-size: 12px; background: var(--bg); color: var(--text); font-family: inherit; transition: background .15s; }
-  .btn:hover { background: var(--bg2); }
-  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
-  .btn-success { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
-  .btn-danger { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
-  .btn-sm { padding: 4px 10px; font-size: 11px; border: 0.5px solid var(--border); border-radius: 6px; cursor: pointer; background: var(--bg); color: var(--text); font-family: inherit; }
-  .btn-sm:hover { background: var(--bg2); }
+  .btn{padding:7px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:12px;background:var(--bg);color:var(--text);font-family:inherit;transition:background .15s}
+  .btn:hover{background:var(--bg2)}
+  .btn-primary{background:var(--info-bg);color:var(--info-text);border-color:var(--info-border)}
+  .btn-success{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)}
+  .btn-danger{background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border)}
+  .btn-warn{background:var(--warn-bg);color:var(--warn-text);border-color:var(--warn-border)}
+  .btn-sm{padding:4px 10px;font-size:11px;border:0.5px solid var(--border);border-radius:6px;cursor:pointer;background:var(--bg);color:var(--text);font-family:inherit}
+  .btn-sm:hover{background:var(--bg2)}
+  .btn:disabled,.btn-sm:disabled{opacity:.5;cursor:not-allowed}
 
   /* FORMS */
-  input[type=text], input[type=date], textarea, select {
-    font-family: inherit; font-size: 12px; color: var(--text); background: var(--bg);
-    border: 0.5px solid var(--border); border-radius: 6px; padding: 6px 9px; width: 100%;
-  }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border2); box-shadow: 0 0 0 2px rgba(55,138,221,0.15); }
-  textarea { resize: vertical; min-height: 52px; }
-  label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 3px; }
-  input[type=range] { width: 100%; cursor: pointer; }
+  input[type=text],input[type=date],textarea,select{font-family:inherit;font-size:12px;color:var(--text);background:var(--bg);border:0.5px solid var(--border);border-radius:6px;padding:6px 9px;width:100%}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--border2);box-shadow:0 0 0 2px rgba(55,138,221,.15)}
+  textarea{resize:vertical;min-height:52px}
+  label{font-size:11px;color:var(--text2);display:block;margin-bottom:3px}
+  input[type=range]{width:100%;cursor:pointer}
 
   /* CARDS */
-  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 12px; }
-  .card-surface { background: var(--bg2); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; }
-  .section-hdr { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; padding-bottom: 7px; border-bottom: 0.5px solid var(--border); }
+  .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px}
+  .card-surface{background:var(--bg2);border-radius:var(--radius);padding:12px;margin-bottom:8px}
+  .section-hdr{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:7px;border-bottom:0.5px solid var(--border)}
 
   /* GRID */
-  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .g4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
-  @media (max-width: 700px) { .g2, .g3 { grid-template-columns: 1fr; } }
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+  @media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
 
   /* KPI */
-  .kpi { background: var(--bg2); border-radius: var(--radius); padding: 13px; text-align: center; }
-  .kpi-lbl { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
-  .kpi-val { font-size: 22px; font-weight: 700; }
-  .kpi-sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
+  .kpi{background:var(--bg2);border-radius:var(--radius);padding:13px;text-align:center}
+  .kpi-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
+  .kpi-val{font-size:22px;font-weight:700}
+  .kpi-sub{font-size:10px;color:var(--text3);margin-top:3px}
 
   /* PILLS */
-  .pill { padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
-  .pill-g { background: var(--success-bg); color: var(--success-text); }
-  .pill-a { background: var(--warn-bg); color: var(--warn-text); }
-  .pill-r { background: var(--danger-bg); color: var(--danger-text); }
-  .pill-b { background: var(--info-bg); color: var(--info-text); }
-  .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
-  .b-done { background: var(--success-bg); color: var(--success-text); }
-  .b-ip { background: var(--info-bg); color: var(--info-text); }
-  .b-risk { background: var(--warn-bg); color: var(--warn-text); }
-  .b-ns { background: var(--bg2); color: var(--text2); }
-  .b-blk { background: var(--danger-bg); color: var(--danger-text); }
+  .pill{padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;white-space:nowrap}
+  .pill-g{background:var(--success-bg);color:var(--success-text)}
+  .pill-a{background:var(--warn-bg);color:var(--warn-text)}
+  .pill-r{background:var(--danger-bg);color:var(--danger-text)}
+  .pill-b{background:var(--info-bg);color:var(--info-text)}
+  .badge{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;display:inline-block}
+  .b-done{background:var(--success-bg);color:var(--success-text)}
+  .b-ip{background:var(--info-bg);color:var(--info-text)}
+  .b-risk{background:var(--warn-bg);color:var(--warn-text)}
+  .b-ns{background:var(--bg2);color:var(--text2)}
+  .b-blk{background:var(--danger-bg);color:var(--danger-text)}
 
   /* PROGRESS */
-  .pb { background: var(--bg2); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 4px; }
-  .pb-fill { height: 6px; border-radius: 4px; transition: width .3s; }
+  .pb{background:var(--bg2);border-radius:4px;height:6px;overflow:hidden;margin-top:4px}
+  .pb-fill{height:6px;border-radius:4px;transition:width .3s}
 
   /* TABLE */
-  .tbl-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 500px; }
-  th { background: var(--bg2); padding: 8px 10px; text-align: left; font-weight: 600; color: var(--text2); border-bottom: 0.5px solid var(--border); white-space: nowrap; }
-  td { padding: 8px 10px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--bg2); }
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px}
+  th{background:var(--bg2);padding:8px 10px;text-align:left;font-weight:700;color:var(--text2);border-bottom:0.5px solid var(--border);white-space:nowrap}
+  td{padding:8px 10px;border-bottom:0.5px solid var(--border);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--bg2)}
 
   /* MODAL */
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
-  .overlay.open { display: flex; }
-  .modal { background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 20px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
-  .modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .modal-title { font-size: 15px; font-weight: 600; }
-  .form-row { margin-bottom: 12px; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px}
+  .overlay.open{display:flex}
+  .modal{background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+  .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .modal-title{font-size:15px;font-weight:700}
+  .form-row{margin-bottom:12px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
   /* TOAST */
-  .toast { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--success-bg); color: var(--success-text); border: 0.5px solid var(--success-border); border-radius: var(--radius); padding: 10px 18px; font-size: 13px; font-weight: 600; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
-  .toast.show { display: block; animation: slideup .2s ease; }
-  @keyframes slideup { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .toast{display:none;position:fixed;bottom:20px;right:20px;border-radius:var(--radius);padding:10px 18px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .toast.show{display:block;animation:slideup .2s ease}
+  .toast-ok{background:var(--success-bg);color:var(--success-text);border:0.5px solid var(--success-border)}
+  .toast-err{background:var(--danger-bg);color:var(--danger-text);border:0.5px solid var(--danger-border)}
+  .toast-info{background:var(--info-bg);color:var(--info-text);border:0.5px solid var(--info-border)}
+  @keyframes slideup{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
 
   /* CONF BAR */
-  .conf-track { background: var(--bg2); border-radius: 4px; height: 16px; overflow: hidden; flex: 1; }
-  .conf-fill { height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 10px; font-weight: 700; color: white; transition: width .3s; }
+  .conf-track{background:var(--bg2);border-radius:4px;height:16px;overflow:hidden;flex:1}
+  .conf-fill{height:16px;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:white;transition:width .3s}
 
-  /* INLINE EDITABLE */
-  [contenteditable] { outline: none; cursor: text; border-radius: 3px; }
-  [contenteditable]:hover { background: var(--bg2); }
-  [contenteditable]:focus { background: var(--bg2); box-shadow: 0 0 0 2px rgba(55,138,221,.2); }
+  /* SAVE INDICATOR */
+  .save-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+  .dot-saved{background:#639922}
+  .dot-unsaved{background:#EF9F27;animation:pulse 1.5s infinite}
+  .dot-saving{background:#378ADD;animation:pulse .8s infinite}
+  .dot-error{background:#E24B4A}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* SPINNER */
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:12px;color:var(--text2)}
+  .loading-screen .spinner{width:28px;height:28px;border-width:3px}
 </style>
 </head>
 <body>
 <div class="page">
 
+<!-- ═══ SUPABASE CONFIG BANNER ═══ -->
+<div class="config-banner" id="config-banner">
+  <div class="icon">&#9889;</div>
+  <div style="flex:1">
+    <h3>Supabase connection — paste your credentials below</h3>
+    <p>Find these in your Supabase project: <strong>Settings → API</strong>. Paste once and click Connect — credentials are saved in this browser for future visits.</p>
+    <div class="config-fields">
+      <div>
+        <label style="color:var(--warn-text)">Project URL</label>
+        <input type="text" id="cfg-url" placeholder="https://xyzxyzxyz.supabase.co" autocomplete="off" spellcheck="false">
+      </div>
+      <div>
+        <label style="color:var(--warn-text)">Anon public key (starts with eyJ...)</label>
+        <input type="text" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off" spellcheck="false">
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-warn" onclick="connectSupabase()">Connect &amp; load data</button>
+      <button class="btn-sm" onclick="dismissBanner()">Already connected — hide this</button>
+      <span class="config-status status-pending" id="conn-status">Not connected</span>
+    </div>
+    <div style="font-size:11px;color:var(--warn-text);margin-top:8px;opacity:.8">
+      Your credentials are stored only in this browser's localStorage. They are never sent anywhere except directly to your Supabase project.
+    </div>
+  </div>
+</div>
+
 <!-- TOPBAR -->
 <div class="topbar">
   <div>
     <h1 id="proj-name-display">ProjectSymphony — Core Platform Access</h1>
-    <p id="meta-lbl">Last saved: never &nbsp;·&nbsp; <span id="today-lbl"></span></p>
+    <p id="meta-lbl">
+      <span class="save-dot dot-unsaved" id="save-dot"></span>
+      <span id="save-lbl">Not saved yet</span>
+      &nbsp;·&nbsp; <span id="today-lbl"></span>
+      &nbsp;·&nbsp; <span id="db-mode-lbl" style="color:var(--text3)">localStorage mode</span>
+    </p>
   </div>
   <div class="topbar-actions">
     <span id="prog-rag-pill" class="pill pill-a">Program: AMBER</span>
     <button class="btn" onclick="openModal('settings')">&#9881; Settings</button>
-    <button class="btn btn-success" onclick="saveData()">&#10003; Save</button>
+    <button class="btn btn-success" id="save-btn" onclick="saveData()">&#10003; Save</button>
     <button class="btn btn-primary" onclick="exportHTML()">&#8659; Export HTML</button>
+    <button class="btn-sm" onclick="document.getElementById('config-banner').style.display='flex'" title="Supabase settings">&#9889; DB</button>
   </div>
 </div>
 
@@ -161,13 +218,22 @@
   <button class="nav-btn" onclick="showPane('script',this)">Verbal script</button>
 </div>
 
+<!-- LOADING SCREEN -->
+<div id="loading-screen" class="loading-screen">
+  <div class="spinner"></div>
+  <div style="font-size:13px">Loading dashboard data...</div>
+</div>
+
+<!-- MAIN CONTENT (hidden until loaded) -->
+<div id="main-content" style="display:none">
+
 <!-- ═══ OVERVIEW ═══ -->
 <div id="pane-overview" class="pane on">
   <div id="kpi-row" class="g4"></div>
   <div class="g2">
     <div>
       <div class="section-hdr">Executive summary</div>
-      <div class="card"><textarea id="exec-summary" rows="5" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="card"><textarea id="exec-summary" rows="5" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit" oninput="markUnsaved()"></textarea></div>
       <div class="section-hdr">Completed since last update</div>
       <div class="card" id="completed-list"></div>
       <button class="btn-sm" style="margin-top:6px" onclick="addListItem('completed')">+ Add item</button>
@@ -181,7 +247,7 @@
     </div>
   </div>
   <div class="section-hdr">Validation readiness by module</div>
-  <div class="card"><div style="position:relative;height:200px"><canvas id="chart-validation" role="img" aria-label="Validation readiness by module grouped bar chart">Validation readiness data.</canvas></div></div>
+  <div class="card"><div style="position:relative;height:200px"><canvas id="chart-validation" role="img" aria-label="Validation readiness grouped bar chart">Validation readiness data.</canvas></div></div>
 </div>
 
 <!-- ═══ BUNDLE GATES ═══ -->
@@ -196,10 +262,10 @@
 
 <!-- ═══ MODULE HEALTH ═══ -->
 <div id="pane-modules" class="pane">
-  <p style="font-size:11px;color:var(--text2);margin-bottom:10px">Click any cell to edit that module's data.</p>
+  <p style="font-size:11px;color:var(--text2);margin-bottom:10px">Click any cell to edit that module.</p>
   <div class="card tbl-wrap" id="module-matrix"></div>
   <div class="section-hdr" style="margin-top:16px">Overall module completion</div>
-  <div class="card"><div style="position:relative;height:180px"><canvas id="chart-completion" role="img" aria-label="Module completion horizontal bar chart">Module completion data.</canvas></div></div>
+  <div class="card"><div style="position:relative;height:180px"><canvas id="chart-completion" role="img" aria-label="Module completion bar chart">Module completion data.</canvas></div></div>
 </div>
 
 <!-- ═══ RISKS ═══ -->
@@ -209,7 +275,7 @@
     <button class="btn btn-primary" onclick="openModal('editRisk',null)">+ Add risk</button>
   </div>
   <div class="card tbl-wrap" id="risk-table"></div>
-  <div class="section-hdr" style="margin-top:16px">Risk heatmap — likelihood vs. impact</div>
+  <div class="section-hdr" style="margin-top:16px">Risk heatmap</div>
   <div class="card"><div style="position:relative;height:230px"><canvas id="chart-risk" role="img" aria-label="Risk heatmap scatter chart">Risk heatmap.</canvas></div></div>
 </div>
 
@@ -244,19 +310,19 @@
   <div class="g2">
     <div>
       <div class="section-hdr">Opening narrative</div>
-      <div class="card"><textarea id="script-open" rows="5" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="card"><textarea id="script-open" rows="5" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit" oninput="markUnsaved()"></textarea></div>
       <div class="section-hdr">Top 3 wins</div>
-      <div class="card"><textarea id="script-wins" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="card"><textarea id="script-wins" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit" oninput="markUnsaved()"></textarea></div>
       <div class="section-hdr">Closing statement</div>
-      <div class="card"><textarea id="script-close" rows="3" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="card"><textarea id="script-close" rows="3" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit" oninput="markUnsaved()"></textarea></div>
     </div>
     <div>
       <div class="section-hdr">Top 3 risks</div>
-      <div class="card"><textarea id="script-risks" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="card"><textarea id="script-risks" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit" oninput="markUnsaved()"></textarea></div>
       <div class="section-hdr">Top 3 asks</div>
-      <div class="card"><textarea id="script-asks" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="card"><textarea id="script-asks" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit" oninput="markUnsaved()"></textarea></div>
       <div class="section-hdr">Executive ask</div>
-      <div class="card"><textarea id="script-execask" rows="3" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="card"><textarea id="script-execask" rows="3" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit" oninput="markUnsaved()"></textarea></div>
     </div>
   </div>
   <div style="display:flex;gap:8px;margin-top:8px">
@@ -265,7 +331,9 @@
   </div>
 </div>
 
-<!-- ═══ MODALS ═══ -->
+</div><!-- end #main-content -->
+
+<!-- ═══ ALL MODALS ═══ -->
 
 <!-- Settings -->
 <div class="overlay" id="overlay-settings">
@@ -277,7 +345,8 @@
       <div class="form-row"><label>MAA target date</label><input type="date" id="s-maa-date"></div>
       <div class="form-row"><label>RAF target date</label><input type="date" id="s-raf-date"></div>
       <div class="form-row"><label>Program RAG</label>
-        <select id="s-prog-rag"><option value="GREEN">GREEN</option><option value="AMBER">AMBER</option><option value="RED">RED</option></select></div>
+        <select id="s-prog-rag"><option value="GREEN">GREEN</option><option value="AMBER">AMBER</option><option value="RED">RED</option></select>
+      </div>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
       <button class="btn" onclick="closeModal('settings')">Cancel</button>
@@ -398,7 +467,7 @@
   </div>
 </div>
 
-<!-- Edit Go/No-Go Criterion -->
+<!-- Edit Criterion -->
 <div class="overlay" id="overlay-editCriterion">
   <div class="modal">
     <div class="modal-hdr"><span class="modal-title" id="modal-crit-title">Edit criterion</span><button class="btn-sm" onclick="closeModal('editCriterion')">&#10005;</button></div>
@@ -431,11 +500,265 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const MODULES = ['Forecasting','Cost Intelligence','Provider','Facility'];
+/* ════════════════════════════════════════════
+   SUPABASE CONFIG
+   ════════════════════════════════════════════ */
+const CRED_KEY = 'supa_creds_symphony';
+const TABLE    = 'dashboard';
+const ROW_KEY  = 'pmo-data';
+const LS_DATA  = 'pmo_symphony_v1';
+
+let SUPA_URL = '';
+let SUPA_KEY = '';
+let isSupaConnected = false;
+
+function getHeaders(prefer = false) {
+  const h = {
+    'Content-Type': 'application/json',
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY
+  };
+  if (prefer) h['Prefer'] = 'return=minimal';
+  return h;
+}
+
+/* Load saved credentials on page start */
+function loadCreds() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CRED_KEY) || '{}');
+    if (c.url && c.key) {
+      SUPA_URL = c.url.replace(/\/$/, '');
+      SUPA_KEY = c.key;
+      document.getElementById('cfg-url').value = SUPA_URL;
+      document.getElementById('cfg-key').value = SUPA_KEY;
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+async function connectSupabase() {
+  const url = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
+  const key = document.getElementById('cfg-key').value.trim();
+  if (!url || !key) { setConnStatus('Enter both URL and key', 'err'); return; }
+
+  SUPA_URL = url;
+  SUPA_KEY = key;
+  setConnStatus('Testing connection...', 'pending');
+
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}&select=key`,
+      { headers: getHeaders() }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status} — check URL and key`);
+    const rows = await res.json();
+
+    /* If no row exists yet, insert the seed row */
+    if (rows.length === 0) {
+      const ins = await fetch(`${SUPA_URL}/rest/v1/${TABLE}`, {
+        method: 'POST',
+        headers: { ...getHeaders(true), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ key: ROW_KEY, value: '{}' })
+      });
+      if (!ins.ok) throw new Error(`Could not create row — check table name and permissions`);
+    }
+
+    /* Save creds */
+    localStorage.setItem(CRED_KEY, JSON.stringify({ url, key }));
+    isSupaConnected = true;
+    setConnStatus('Connected to Supabase', 'ok');
+    document.getElementById('db-mode-lbl').textContent = 'Supabase mode';
+    document.getElementById('db-mode-lbl').style.color = 'var(--success-text)';
+    showToast('Connected! Loading data from Supabase...', 'info');
+
+    await loadFromSupabase();
+    document.getElementById('config-banner').style.display = 'none';
+
+  } catch(e) {
+    setConnStatus('Error: ' + e.message, 'err');
+    showToast('Connection failed — see banner for details', 'err');
+    console.error(e);
+  }
+}
+
+function setConnStatus(msg, type) {
+  const el = document.getElementById('conn-status');
+  el.textContent = msg;
+  el.className = 'config-status ' + { ok: 'status-ok', err: 'status-err', pending: 'status-pending' }[type];
+}
+
+function dismissBanner() {
+  document.getElementById('config-banner').style.display = 'none';
+}
+
+/* ════════════════════════════════════════════
+   SAVE / LOAD — auto-routes to Supabase or localStorage
+   ════════════════════════════════════════════ */
+
+/* Collect textarea values into D before any save */
+function collectTextareas() {
+  D.execSummary = document.getElementById('exec-summary').value;
+  ['open','wins','risks','asks','close','execask'].forEach(k => {
+    const el = document.getElementById('script-' + k);
+    if (el) D.script[k] = el.value;
+  });
+}
+
+async function saveData() {
+  collectTextareas();
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Saving...';
+  setSaveDot('saving');
+
+  if (isSupaConnected) {
+    await saveToSupabase();
+  } else {
+    saveToLocalStorage();
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '&#10003; Save';
+}
+
+async function saveToSupabase() {
+  try {
+    const payload = JSON.stringify({ value: JSON.stringify(D), updated_at: new Date().toISOString() });
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}`,
+      { method: 'PATCH', headers: getHeaders(true), body: payload }
+    );
+    if (!res.ok) throw new Error(await res.text());
+    setSaveDot('saved');
+    updateSaveLabel('Saved to Supabase');
+    showToast('Saved to Supabase', 'ok');
+  } catch(e) {
+    setSaveDot('error');
+    showToast('Supabase save failed — falling back to localStorage', 'err');
+    saveToLocalStorage();
+    console.error(e);
+  }
+}
+
+function saveToLocalStorage() {
+  try {
+    localStorage.setItem(LS_DATA, JSON.stringify(D));
+    setSaveDot('saved');
+    updateSaveLabel('Saved to browser storage');
+    showToast('Saved to browser storage', 'ok');
+  } catch(e) {
+    setSaveDot('error');
+    showToast('Storage full — export HTML to back up', 'err');
+  }
+}
+
+async function loadFromSupabase() {
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}&select=value`,
+      { headers: getHeaders() }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = await res.json();
+    if (rows.length && rows[0].value && rows[0].value !== '{}') {
+      D = JSON.parse(rows[0].value);
+    }
+    isSupaConnected = true;
+    document.getElementById('db-mode-lbl').textContent = 'Supabase mode';
+    document.getElementById('db-mode-lbl').style.color = 'var(--success-text)';
+    setSaveDot('saved');
+    updateSaveLabel('Loaded from Supabase');
+  } catch(e) {
+    console.warn('Supabase load failed, using localStorage:', e);
+    loadFromLocalStorage();
+  }
+  showDashboard();
+}
+
+function loadFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(LS_DATA);
+    if (raw) D = JSON.parse(raw);
+  } catch(e) {}
+}
+
+async function initDashboard() {
+  const hasCreds = loadCreds();
+  if (hasCreds) {
+    /* Try Supabase first */
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}&select=value`,
+        { headers: getHeaders() }
+      );
+      if (!res.ok) throw new Error();
+      const rows = await res.json();
+      if (rows.length && rows[0].value && rows[0].value !== '{}') {
+        D = JSON.parse(rows[0].value);
+      }
+      isSupaConnected = true;
+      setConnStatus('Connected to Supabase', 'ok');
+      document.getElementById('db-mode-lbl').textContent = 'Supabase mode';
+      document.getElementById('db-mode-lbl').style.color = 'var(--success-text)';
+      document.getElementById('config-banner').style.display = 'none';
+      setSaveDot('saved');
+      updateSaveLabel('Loaded from Supabase');
+    } catch(e) {
+      /* Supabase unavailable — fall back silently */
+      loadFromLocalStorage();
+      document.getElementById('db-mode-lbl').textContent = 'localStorage (Supabase offline)';
+    }
+  } else {
+    /* No creds yet — load from localStorage */
+    loadFromLocalStorage();
+  }
+  showDashboard();
+}
+
+function showDashboard() {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  renderAll();
+}
+
+/* ════════════════════════════════════════════
+   SAVE STATE INDICATOR
+   ════════════════════════════════════════════ */
+function setSaveDot(state) {
+  const d = document.getElementById('save-dot');
+  d.className = 'save-dot ' + {saved:'dot-saved',unsaved:'dot-unsaved',saving:'dot-saving',error:'dot-error'}[state];
+}
+function markUnsaved() { setSaveDot('unsaved'); }
+function updateSaveLabel(msg) {
+  const now = new Date();
+  document.getElementById('save-lbl').textContent = msg + ' at ' + now.toLocaleTimeString();
+}
+
+/* ════════════════════════════════════════════
+   EXPORT — bakes current data into the HTML
+   ════════════════════════════════════════════ */
+function exportHTML() {
+  collectTextareas();
+  /* Inject current D into a script tag so exported file has data baked in */
+  const dataScript = `<script>window.__BAKED_DATA__ = ${JSON.stringify(D)};<\/script>`;
+  let html = document.documentElement.outerHTML;
+  html = html.replace('</head>', dataScript + '</head>');
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'projectsymphony-dashboard.html';
+  a.click();
+  showToast('HTML exported with current data baked in', 'ok');
+}
+
+/* ════════════════════════════════════════════
+   DATA MODEL (defaults)
+   ════════════════════════════════════════════ */
+const MODULES   = ['Forecasting','Cost Intelligence','Provider','Facility'];
 const PRACTICES = ['RPFL','MAA','RAF'];
 const RAG_COLOR = {GREEN:'#639922',AMBER:'#EF9F27',RED:'#E24B4A'};
 const STATUS_BADGE = {Done:'b-done','In Progress':'b-ip','At Risk':'b-risk','Not Started':'b-ns',Blocked:'b-blk'};
-const STORAGE_KEY = 'pmo_symphony_v1';
 
 let D = {
   settings:{projName:'ProjectSymphony — Core Platform Access',progRag:'AMBER',RPFLDate:'2026-04-27',maaDate:'2026-05-04',rafDate:'2026-05-15'},
@@ -444,23 +767,11 @@ let D = {
   inprogress:['WorkList + Location mapping resolution — target Apr 23','Staging data normalization sprint','Date/DOW coverage logic QA pass — RPFL','Cost Intelligence integration wiring for RPFL','RPCE logic spec review with backend'],
   bundles:{
     RPFL:{rag:'AMBER',blocker:'WorkList mapping unresolved; Location normalization pending',decision:'Approve WorkList mapping approach by Apr 23',conf:75,
-      modules:{
-        Forecasting:{status:'In Progress',pct:70,rag:'AMBER',dep:'WorkList gap closure',val:60,gaps:'Date/DOW logic, WorkList fields'},
-        'Cost Intelligence':{status:'In Progress',pct:65,rag:'AMBER',dep:'Staging normalization',val:55,gaps:'Staging normalization'},
-        Provider:{status:'In Progress',pct:60,rag:'AMBER',dep:'RPCE validation',val:50,gaps:'RPCE logic, Location'},
-        Facility:{status:'In Progress',pct:55,rag:'AMBER',dep:'Location mapping',val:45,gaps:'Location mapping'}}},
+      modules:{Forecasting:{status:'In Progress',pct:70,rag:'AMBER',dep:'WorkList gap closure',val:60,gaps:'Date/DOW logic, WorkList fields'},'Cost Intelligence':{status:'In Progress',pct:65,rag:'AMBER',dep:'Staging normalization',val:55,gaps:'Staging normalization'},Provider:{status:'In Progress',pct:60,rag:'AMBER',dep:'RPCE validation',val:50,gaps:'RPCE logic, Location'},Facility:{status:'In Progress',pct:55,rag:'AMBER',dep:'Location mapping',val:45,gaps:'Location mapping'}}},
     MAA:{rag:'AMBER',blocker:'SubPractice mapping TBD; staging data not normalized',decision:'Confirm SubPractice data ownership by Apr 25',conf:65,
-      modules:{
-        Forecasting:{status:'In Progress',pct:40,rag:'AMBER',dep:'RPFL learnings + MAA data load',val:10,gaps:'MAA data load pending'},
-        'Cost Intelligence':{status:'In Progress',pct:35,rag:'AMBER',dep:'MAA staging normalization',val:10,gaps:'MAA staging'},
-        Provider:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'},
-        Facility:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'}}},
+      modules:{Forecasting:{status:'In Progress',pct:40,rag:'AMBER',dep:'RPFL learnings + MAA data load',val:10,gaps:'MAA data load pending'},'Cost Intelligence':{status:'In Progress',pct:35,rag:'AMBER',dep:'MAA staging normalization',val:10,gaps:'MAA staging'},Provider:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'},Facility:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'}}},
     RAF:{rag:'RED',blocker:'RPCE + Location gaps; integration churn risk',decision:'Approve integration stability owner by Apr 25',conf:60,
-      modules:{
-        Forecasting:{status:'Not Started',pct:5,rag:'RED',dep:'MAA completion + RAF data',val:0,gaps:'All'},
-        'Cost Intelligence':{status:'Not Started',pct:5,rag:'RED',dep:'MAA completion',val:0,gaps:'All'},
-        Provider:{status:'Not Started',pct:0,rag:'RED',dep:'RPCE gap closed',val:0,gaps:'RPCE + Location'},
-        Facility:{status:'Not Started',pct:0,rag:'RED',dep:'Location finalization',val:0,gaps:'Location finalization'}}}
+      modules:{Forecasting:{status:'Not Started',pct:5,rag:'RED',dep:'MAA completion + RAF data',val:0,gaps:'All'},'Cost Intelligence':{status:'Not Started',pct:5,rag:'RED',dep:'MAA completion',val:0,gaps:'All'},Provider:{status:'Not Started',pct:0,rag:'RED',dep:'RPCE gap closed',val:0,gaps:'RPCE + Location'},Facility:{status:'Not Started',pct:0,rag:'RED',dep:'Location finalization',val:0,gaps:'Location finalization'}}}
   },
   risks:[
     {risk:'WorkList mapping gap unresolved',practice:'RPFL (Apr 27)',rag:'RED',likelihood:4.5,impact:4.5,mitigation:'Engineering to confirm mapping source by Apr 23',owner:'<fill>',due:'Apr 23'},
@@ -504,91 +815,65 @@ let D = {
   }
 };
 
-let charts = {};
+/* Override D with baked data if present (from Export) */
+if (window.__BAKED_DATA__) D = window.__BAKED_DATA__;
 
-/* ── UTILS ── */
+/* ════════════════════════════════════════════
+   UTILS
+   ════════════════════════════════════════════ */
 function ragPill(r){const c={GREEN:'g',AMBER:'a',RED:'r'}[r]||'a';return `<span class="pill pill-${c}">${r}</span>`;}
 function statusBadge(s){return `<span class="badge ${STATUS_BADGE[s]||'b-ns'}">${s}</span>`;}
 function pbFill(pct,rag){return `<div class="pb"><div class="pb-fill" style="width:${pct}%;background:${RAG_COLOR[rag]||RAG_COLOR.AMBER}"></div></div>`;}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 function fmtDate(d){if(!d)return '';try{return new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
 
-/* ── STORAGE ── */
-function saveData(){
-  D.execSummary = document.getElementById('exec-summary').value;
-  ['open','wins','risks','asks','close','execask'].forEach(k=>{
-    const el=document.getElementById('script-'+k);
-    if(el) D.script[k]=el.value;
-  });
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(D)); } catch(e){ showToast('Storage full — export to back up'); return; }
-  const now = new Date();
-  document.getElementById('meta-lbl').innerHTML = `Last saved: ${now.toLocaleTimeString()} &nbsp;·&nbsp; <span id="today-lbl">${now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>`;
-  showToast('Saved successfully');
+function showToast(msg, type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show toast-'+(type==='ok'?'ok':type==='err'?'err':'info');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-function loadData(){
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(raw) D = JSON.parse(raw);
-  } catch(e) {}
-  renderAll();
-}
-
-function exportHTML(){
-  const blob = new Blob([document.documentElement.outerHTML],{type:'text/html'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'projectsymphony-dashboard.html';
-  a.click();
-  showToast('HTML exported — open it in any browser');
-}
-
-/* ── RENDER ALL ── */
+/* ════════════════════════════════════════════
+   RENDER ALL
+   ════════════════════════════════════════════ */
 function renderAll(){
-  document.getElementById('exec-summary').value = D.execSummary;
-  document.getElementById('proj-name-display').textContent = D.settings.projName;
-  const pc = document.getElementById('prog-rag-pill');
-  pc.className = 'pill pill-'+{GREEN:'g',AMBER:'a',RED:'r'}[D.settings.progRag];
-  pc.textContent = 'Program: '+D.settings.progRag;
-  const now = new Date();
-  document.getElementById('today-lbl').textContent = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  renderKPIs(); renderConfidence(); renderLists();
-  renderBundles(); renderModuleMatrix(); renderRisks();
-  renderDecisions(); renderGongo(); renderPlan();
-  renderTimeline(); renderScripts(); renderCharts();
+  document.getElementById('exec-summary').value=D.execSummary;
+  document.getElementById('proj-name-display').textContent=D.settings.projName;
+  document.getElementById('today-lbl').textContent=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const pp=document.getElementById('prog-rag-pill');
+  pp.className='pill pill-'+{GREEN:'g',AMBER:'a',RED:'r'}[D.settings.progRag];
+  pp.textContent='Program: '+D.settings.progRag;
+  renderKPIs();renderConfidence();renderLists();renderBundles();
+  renderModuleMatrix();renderRisks();renderDecisions();
+  renderGongo();renderPlan();renderTimeline();renderScripts();renderCharts();
 }
 
 function renderKPIs(){
-  const now = new Date();
-  const d = s => Math.max(0,Math.ceil((new Date(s+'T12:00')-now)/86400000));
-  const openR = D.risks.filter(r=>r.rag==='RED').length;
-  const openD = D.decisions.filter(d=>d.status==='Open').length;
-  const allPcts = PRACTICES.flatMap(p=>MODULES.map(m=>D.bundles[p].modules[m].val||0));
-  const avgVal = Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length);
-  const items = [
-    {l:'Days to RPFL',v:d(D.settings.RPFLDate),s:fmtDate(D.settings.RPFLDate)},
-    {l:'Days to MAA',v:d(D.settings.maaDate),s:fmtDate(D.settings.maaDate)},
-    {l:'Days to RAF',v:d(D.settings.rafDate),s:fmtDate(D.settings.rafDate)},
-    {l:'Open P1 risks',v:openR,s:'RED status',danger:openR>0},
-    {l:'Open decisions',v:openD,s:'Needed this week',warn:openD>0},
+  const now=new Date();
+  const diff=s=>Math.max(0,Math.ceil((new Date(s+'T12:00')-now)/86400000));
+  const openR=D.risks.filter(r=>r.rag==='RED').length;
+  const openD=D.decisions.filter(d=>d.status==='Open').length;
+  const allVals=PRACTICES.flatMap(p=>MODULES.map(m=>D.bundles[p].modules[m].val||0));
+  const avgVal=Math.round(allVals.reduce((a,b)=>a+b,0)/allVals.length);
+  const items=[
+    {l:'Days to RPFL',v:diff(D.settings.RPFLDate),s:fmtDate(D.settings.RPFLDate)},
+    {l:'Days to MAA',v:diff(D.settings.maaDate),s:fmtDate(D.settings.maaDate)},
+    {l:'Days to RAF',v:diff(D.settings.rafDate),s:fmtDate(D.settings.rafDate)},
+    {l:'Open P1 risks',v:openR,s:'RED status',c:openR>0?'color:#E24B4A':''},
+    {l:'Open decisions',v:openD,s:'Needed this week',c:openD>0?'color:#EF9F27':''},
     {l:'Practices Go-ready',v:'0 / 3',s:'None cleared yet'},
     {l:'Avg validation',v:avgVal+'%',s:'All modules avg'},
     {l:'Modules in scope',v:4,s:'Must bundle all 4'}
   ];
-  document.getElementById('kpi-row').innerHTML = items.map(k=>
-    `<div class="kpi"><div class="kpi-lbl">${k.l}</div>
-     <div class="kpi-val" style="${k.danger?'color:#E24B4A':k.warn?'color:#EF9F27':''}">${k.v}</div>
-     <div class="kpi-sub">${k.s}</div></div>`
-  ).join('');
+  document.getElementById('kpi-row').innerHTML=items.map(k=>`<div class="kpi"><div class="kpi-lbl">${k.l}</div><div class="kpi-val" style="${k.c||''}">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
 }
 
 function renderConfidence(){
-  document.getElementById('conf-panel').innerHTML = PRACTICES.map(p=>{
-    const b=D.bundles[p],c=b.conf;
-    const col=c>=80?'#639922':c>=65?'#EF9F27':'#E24B4A';
+  document.getElementById('conf-panel').innerHTML=PRACTICES.map(p=>{
+    const b=D.bundles[p],c=b.conf,col=c>=80?'#639922':c>=65?'#EF9F27':'#E24B4A';
     return `<div style="margin-bottom:13px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-        <strong>${p} — ${fmtDate(D.settings[p.toLowerCase()+'Date'])}</strong><span style="font-weight:700">${c}%</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><strong>${p} — ${fmtDate(D.settings[p.toLowerCase()+'Date'])}</strong><span style="font-weight:700">${c}%</span></div>
       <div class="conf-track"><div class="conf-fill" style="width:${c}%;background:${col}">${c}%</div></div>
       <div style="font-size:11px;color:var(--text2);margin-top:3px">${b.decision}</div>
     </div>`;
@@ -597,42 +882,29 @@ function renderConfidence(){
 
 function renderLists(){
   ['completed','inprogress'].forEach(k=>{
-    document.getElementById(k+'-list').innerHTML = D[k].map((t,i)=>
-      `<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);cursor:pointer" onclick="openListModal('${k}',${i})">
-        <div style="width:6px;height:6px;border-radius:50%;background:${k==='completed'?'#639922':'#378ADD'};margin-top:5px;flex-shrink:0"></div>
-        <span style="font-size:12px;flex:1">${t}</span>
-        <span style="font-size:10px;color:var(--text3)">edit</span>
-      </div>`
-    ).join('');
+    document.getElementById(k+'-list').innerHTML=D[k].map((t,i)=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);cursor:pointer" onclick="openListModal('${k}',${i})">
+      <div style="width:6px;height:6px;border-radius:50%;background:${k==='completed'?'#639922':'#378ADD'};margin-top:5px;flex-shrink:0"></div>
+      <span style="font-size:12px;flex:1">${t}</span><span style="font-size:10px;color:var(--text3)">edit</span>
+    </div>`).join('');
   });
 }
-
-function addListItem(k){ D[k].push('New item — click to edit'); renderLists(); openListModal(k, D[k].length-1); }
-function openListModal(k,i){
-  document.getElementById('li-list').value=k; document.getElementById('li-idx').value=i;
-  document.getElementById('li-text').value=D[k][i];
-  document.getElementById('modal-list-title').textContent = k==='completed'?'Edit completed item':'Edit in-progress item';
-  openModal('listItem');
-}
-function saveListItem(){ const k=document.getElementById('li-list').value,i=+document.getElementById('li-idx').value; D[k][i]=document.getElementById('li-text').value; renderLists(); closeModal('listItem'); }
-function deleteListItem(){ const k=document.getElementById('li-list').value,i=+document.getElementById('li-idx').value; D[k].splice(i,1); renderLists(); closeModal('listItem'); }
+function addListItem(k){D[k].push('New item — click to edit');renderLists();openListModal(k,D[k].length-1);markUnsaved();}
+function openListModal(k,i){document.getElementById('li-list').value=k;document.getElementById('li-idx').value=i;document.getElementById('li-text').value=D[k][i];document.getElementById('modal-list-title').textContent=k==='completed'?'Edit completed item':'Edit in-progress item';openModal('listItem');}
+function saveListItem(){const k=document.getElementById('li-list').value,i=+document.getElementById('li-idx').value;D[k][i]=document.getElementById('li-text').value;renderLists();closeModal('listItem');markUnsaved();}
+function deleteListItem(){const k=document.getElementById('li-list').value,i=+document.getElementById('li-idx').value;D[k].splice(i,1);renderLists();closeModal('listItem');markUnsaved();}
 
 function renderBundles(){
-  document.getElementById('bundle-cards').innerHTML = PRACTICES.map(p=>{
+  document.getElementById('bundle-cards').innerHTML=PRACTICES.map(p=>{
     const b=D.bundles[p];
     return `<div class="card">
-      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-        <div><div style="font-weight:700;font-size:15px">${p}</div><div style="font-size:11px;color:var(--text2)">${fmtDate(D.settings[p.toLowerCase()+'Date'])}</div></div>
-        ${ragPill(b.rag)}
-      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px"><div><div style="font-weight:700;font-size:15px">${p}</div><div style="font-size:11px;color:var(--text2)">${fmtDate(D.settings[p.toLowerCase()+'Date'])}</div></div>${ragPill(b.rag)}</div>
       ${MODULES.map(m=>{const mod=b.modules[m];return `<div style="margin-bottom:7px;cursor:pointer;padding:6px;border-radius:6px;border:0.5px solid var(--border)" onclick="openModuleModal('${p}','${m.replace(/'/g,"\\'")}')">
         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">${m}${statusBadge(mod.status)}<span style="font-size:11px;color:var(--text2)">${mod.pct}%</span></div>
         ${pbFill(mod.pct,mod.rag)}<div style="font-size:10px;color:var(--text2);margin-top:3px">${mod.dep}</div>
       </div>`;}).join('')}
       <div style="border-top:0.5px solid var(--border);padding-top:9px;margin-top:6px;font-size:11px">
         <div style="color:var(--text2)"><strong style="color:#E24B4A">Blocker:</strong> ${b.blocker}</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:7px">
-          <span style="font-size:11px;color:var(--text2)">Confidence</span>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:7px"><span style="font-size:11px;color:var(--text2)">Confidence</span>
           <div class="conf-track"><div class="conf-fill" style="width:${b.conf}%;background:${b.conf>=80?'#639922':b.conf>=65?'#EF9F27':'#E24B4A'}">${b.conf}%</div></div>
         </div>
       </div>
@@ -642,26 +914,19 @@ function renderBundles(){
 
 function openModuleModal(p,m){
   const mod=D.bundles[p].modules[m];
-  document.getElementById('em-practice').value=p; document.getElementById('em-module').value=m;
+  document.getElementById('em-practice').value=p;document.getElementById('em-module').value=m;
   document.getElementById('em-status').value=mod.status;
-  document.getElementById('em-pct').value=mod.pct; document.getElementById('em-pct-val').textContent=mod.pct+'%';
-  document.getElementById('em-rag').value=mod.rag;
-  document.getElementById('em-dep').value=mod.dep;
-  document.getElementById('em-val').value=mod.val||0; document.getElementById('em-val-val').textContent=(mod.val||0)+'%';
+  document.getElementById('em-pct').value=mod.pct;document.getElementById('em-pct-val').textContent=mod.pct+'%';
+  document.getElementById('em-rag').value=mod.rag;document.getElementById('em-dep').value=mod.dep;
+  document.getElementById('em-val').value=mod.val||0;document.getElementById('em-val-val').textContent=(mod.val||0)+'%';
   document.getElementById('em-gaps').value=mod.gaps||'';
   document.getElementById('modal-mod-title').textContent=`Edit ${m} — ${p}`;
   openModal('editModule');
 }
 function saveModuleEdit(){
-  const p=document.getElementById('em-practice').value, m=document.getElementById('em-module').value;
-  D.bundles[p].modules[m]={...D.bundles[p].modules[m],
-    status:document.getElementById('em-status').value,
-    pct:+document.getElementById('em-pct').value,
-    rag:document.getElementById('em-rag').value,
-    dep:document.getElementById('em-dep').value,
-    val:+document.getElementById('em-val').value,
-    gaps:document.getElementById('em-gaps').value};
-  closeModal('editModule'); renderBundles(); renderModuleMatrix(); renderCharts();
+  const p=document.getElementById('em-practice').value,m=document.getElementById('em-module').value;
+  D.bundles[p].modules[m]={...D.bundles[p].modules[m],status:document.getElementById('em-status').value,pct:+document.getElementById('em-pct').value,rag:document.getElementById('em-rag').value,dep:document.getElementById('em-dep').value,val:+document.getElementById('em-val').value,gaps:document.getElementById('em-gaps').value};
+  closeModal('editModule');renderBundles();renderModuleMatrix();renderCharts();markUnsaved();
 }
 
 function renderModuleMatrix(){
@@ -679,29 +944,23 @@ function renderModuleMatrix(){
     });
     html+=`<td style="font-size:11px;color:var(--text2)">${crossDep[m]||'—'}</td></tr>`;
   });
-  html+='</tbody></table>';
-  document.getElementById('module-matrix').innerHTML=html;
+  document.getElementById('module-matrix').innerHTML=html+'</tbody></table>';
 }
 
 function renderRisks(){
-  const reds=D.risks.filter(r=>r.rag==='RED').length, ambers=D.risks.filter(r=>r.rag==='AMBER').length;
+  const reds=D.risks.filter(r=>r.rag==='RED').length,ambers=D.risks.filter(r=>r.rag==='AMBER').length;
   document.getElementById('risk-summary-lbl').innerHTML=`${D.risks.length} risks &nbsp;·&nbsp; <span style="color:#E24B4A;font-weight:700">${reds} RED</span> &nbsp;·&nbsp; <span style="color:#EF9F27;font-weight:700">${ambers} AMBER</span>`;
   let html=`<table><thead><tr><th>Risk</th><th>Practice</th><th>RAG</th><th>Owner</th><th>Due</th><th>Mitigation</th><th></th></tr></thead><tbody>`;
-  D.risks.forEach((r,i)=>{
-    html+=`<tr><td style="font-weight:600">${r.risk}</td><td>${r.practice}</td><td>${ragPill(r.rag)}</td><td>${r.owner}</td><td style="white-space:nowrap">${r.due}</td><td style="color:var(--text2)">${r.mitigation}</td><td><button class="btn-sm" onclick="openRiskModal(${i})">Edit</button></td></tr>`;
-  });
-  html+='</tbody></table>';
-  document.getElementById('risk-table').innerHTML=html;
+  D.risks.forEach((r,i)=>{html+=`<tr><td style="font-weight:700">${r.risk}</td><td>${r.practice}</td><td>${ragPill(r.rag)}</td><td>${r.owner}</td><td style="white-space:nowrap">${r.due}</td><td style="color:var(--text2)">${r.mitigation}</td><td><button class="btn-sm" onclick="openRiskModal(${i})">Edit</button></td></tr>`;});
+  document.getElementById('risk-table').innerHTML=html+'</tbody></table>';
 }
 function openRiskModal(i){
   const r=i===null?{risk:'',practice:'',rag:'AMBER',likelihood:3,impact:3,mitigation:'',owner:'',due:''}:D.risks[i];
   document.getElementById('er-idx').value=i===null?-1:i;
-  document.getElementById('er-risk').value=r.risk; document.getElementById('er-practice').value=r.practice;
-  document.getElementById('er-rag').value=r.rag;
-  document.getElementById('er-likelihood').value=r.likelihood; document.getElementById('er-lh-val').textContent=r.likelihood;
-  document.getElementById('er-impact').value=r.impact; document.getElementById('er-imp-val').textContent=r.impact;
-  document.getElementById('er-owner').value=r.owner; document.getElementById('er-due').value=r.due;
-  document.getElementById('er-mitigation').value=r.mitigation;
+  document.getElementById('er-risk').value=r.risk;document.getElementById('er-practice').value=r.practice;document.getElementById('er-rag').value=r.rag;
+  document.getElementById('er-likelihood').value=r.likelihood;document.getElementById('er-lh-val').textContent=r.likelihood;
+  document.getElementById('er-impact').value=r.impact;document.getElementById('er-imp-val').textContent=r.impact;
+  document.getElementById('er-owner').value=r.owner;document.getElementById('er-due').value=r.due;document.getElementById('er-mitigation').value=r.mitigation;
   document.getElementById('modal-risk-title').textContent=i===null?'Add risk':'Edit risk';
   document.getElementById('er-delete-btn').style.display=i===null?'none':'inline-block';
   openModal('editRisk');
@@ -709,16 +968,15 @@ function openRiskModal(i){
 function saveRisk(){
   const i=+document.getElementById('er-idx').value;
   const obj={risk:document.getElementById('er-risk').value,practice:document.getElementById('er-practice').value,rag:document.getElementById('er-rag').value,likelihood:+document.getElementById('er-likelihood').value,impact:+document.getElementById('er-impact').value,owner:document.getElementById('er-owner').value,due:document.getElementById('er-due').value,mitigation:document.getElementById('er-mitigation').value};
-  if(i===-1) D.risks.push(obj); else D.risks[i]=obj;
-  closeModal('editRisk'); renderRisks(); renderCharts();
+  if(i===-1)D.risks.push(obj);else D.risks[i]=obj;
+  closeModal('editRisk');renderRisks();renderCharts();markUnsaved();
 }
-function deleteRisk(){ const i=+document.getElementById('er-idx').value; if(i>=0) D.risks.splice(i,1); closeModal('editRisk'); renderRisks(); renderCharts(); }
+function deleteRisk(){const i=+document.getElementById('er-idx').value;if(i>=0)D.risks.splice(i,1);closeModal('editRisk');renderRisks();renderCharts();markUnsaved();}
 
 function renderDecisions(){
-  document.getElementById('decision-cards').innerHTML = D.decisions.map((d,i)=>`<div class="card">
+  document.getElementById('decision-cards').innerHTML=D.decisions.map((d,i)=>`<div class="card">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;margin-bottom:5px">${d.decision}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:700;margin-bottom:5px">${d.decision}</div>
         <div style="font-size:11px;color:var(--text2)">Needed by <strong>${d.needed}</strong> &nbsp;·&nbsp; Practice: ${d.practice} &nbsp;·&nbsp; Owner: ${d.owner}</div>
         <div style="font-size:11px;color:var(--text2);margin-top:3px">Consequence: ${d.consequence}</div>
       </div>
@@ -741,20 +999,20 @@ function openDecisionModal(i){
 function saveDecision(){
   const i=+document.getElementById('ed-idx').value;
   const obj={decision:document.getElementById('ed-decision').value,needed:document.getElementById('ed-needed').value,practice:document.getElementById('ed-practice').value,owner:document.getElementById('ed-owner').value,status:document.getElementById('ed-status').value,consequence:document.getElementById('ed-consequence').value};
-  if(i===-1) D.decisions.push(obj); else D.decisions[i]=obj;
-  closeModal('editDecision'); renderDecisions();
+  if(i===-1)D.decisions.push(obj);else D.decisions[i]=obj;
+  closeModal('editDecision');renderDecisions();markUnsaved();
 }
-function deleteDecision(){ const i=+document.getElementById('ed-idx').value; if(i>=0) D.decisions.splice(i,1); closeModal('editDecision'); renderDecisions(); }
+function deleteDecision(){const i=+document.getElementById('ed-idx').value;if(i>=0)D.decisions.splice(i,1);closeModal('editDecision');renderDecisions();markUnsaved();}
 
 function renderGongo(){
   const icons={Done:'✓','In Progress':'~',Blocked:'✗','Not Started':'–'};
-  const icColors={Done:'#639922','In Progress':'#EF9F27',Blocked:'#E24B4A','Not Started':'#9b9b96'};
-  document.getElementById('gongo-panels').innerHTML = PRACTICES.map(p=>{
+  const icCol={Done:'#639922','In Progress':'#EF9F27',Blocked:'#E24B4A','Not Started':'#9b9b96'};
+  document.getElementById('gongo-panels').innerHTML=PRACTICES.map(p=>{
     const g=D.gongo[p];
     return `<div class="card">
       <div style="display:flex;justify-content:space-between;margin-bottom:10px"><strong>${p}</strong>${ragPill(D.bundles[p].rag)}</div>
       ${g.criteria.map((c,i)=>`<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);cursor:pointer" onclick="openCriterionModal('${p}',${i})">
-        <span style="font-size:13px;width:16px;text-align:center;color:${icColors[c.status]||'#9b9b96'};font-weight:700">${icons[c.status]||'–'}</span>
+        <span style="font-size:13px;width:16px;text-align:center;color:${icCol[c.status]||'#9b9b96'};font-weight:700">${icons[c.status]||'–'}</span>
         <span style="font-size:11px;flex:1">${c.text}</span>
         <span style="font-size:10px;color:var(--text3)">${c.status}</span>
       </div>`).join('')}
@@ -762,30 +1020,20 @@ function renderGongo(){
     </div>`;
   }).join('');
 }
-function openCriterionModal(p,i){
-  const c=D.gongo[p].criteria[i];
-  document.getElementById('ec-practice').value=p; document.getElementById('ec-idx').value=i;
-  document.getElementById('ec-text').value=c.text; document.getElementById('ec-status').value=c.status;
-  document.getElementById('modal-crit-title').textContent=`Edit criterion — ${p}`;
-  openModal('editCriterion');
-}
-function saveCriterion(){ const p=document.getElementById('ec-practice').value,i=+document.getElementById('ec-idx').value; D.gongo[p].criteria[i]={text:document.getElementById('ec-text').value,status:document.getElementById('ec-status').value}; closeModal('editCriterion'); renderGongo(); }
-function deleteCriterion(){ const p=document.getElementById('ec-practice').value,i=+document.getElementById('ec-idx').value; D.gongo[p].criteria.splice(i,1); closeModal('editCriterion'); renderGongo(); }
-function addCriterion(p){ D.gongo[p].criteria.push({text:'New criterion',status:'Not Started'}); renderGongo(); openCriterionModal(p,D.gongo[p].criteria.length-1); }
+function openCriterionModal(p,i){const c=D.gongo[p].criteria[i];document.getElementById('ec-practice').value=p;document.getElementById('ec-idx').value=i;document.getElementById('ec-text').value=c.text;document.getElementById('ec-status').value=c.status;document.getElementById('modal-crit-title').textContent=`Edit criterion — ${p}`;openModal('editCriterion');}
+function saveCriterion(){const p=document.getElementById('ec-practice').value,i=+document.getElementById('ec-idx').value;D.gongo[p].criteria[i]={text:document.getElementById('ec-text').value,status:document.getElementById('ec-status').value};closeModal('editCriterion');renderGongo();markUnsaved();}
+function deleteCriterion(){const p=document.getElementById('ec-practice').value,i=+document.getElementById('ec-idx').value;D.gongo[p].criteria.splice(i,1);closeModal('editCriterion');renderGongo();markUnsaved();}
+function addCriterion(p){D.gongo[p].criteria.push({text:'New criterion',status:'Not Started'});renderGongo();openCriterionModal(p,D.gongo[p].criteria.length-1);markUnsaved();}
 
 function renderPlan(){
   let html=`<table><thead><tr><th>Date</th><th>Activity</th><th>Practice</th><th>Owner</th><th>Status</th><th></th></tr></thead><tbody>`;
-  D.plan.forEach((r,i)=>{
-    html+=`<tr><td style="white-space:nowrap">${r.date}</td><td>${r.item}</td><td>${r.practice}</td><td>${r.owner}</td><td>${statusBadge(r.status)}</td><td><button class="btn-sm" onclick="openPlanModal(${i})">Edit</button></td></tr>`;
-  });
+  D.plan.forEach((r,i)=>{html+=`<tr><td style="white-space:nowrap">${r.date}</td><td>${r.item}</td><td>${r.practice}</td><td>${r.owner}</td><td>${statusBadge(r.status)}</td><td><button class="btn-sm" onclick="openPlanModal(${i})">Edit</button></td></tr>`;});
   document.getElementById('plan-table').innerHTML=html+'</tbody></table>';
 }
 function openPlanModal(i){
   const r=i===null?{date:'',item:'',practice:'',owner:'',status:'Not Started'}:D.plan[i];
   document.getElementById('ep-idx').value=i===null?-1:i;
-  document.getElementById('ep-date').value=r.date; document.getElementById('ep-item').value=r.item;
-  document.getElementById('ep-practice').value=r.practice; document.getElementById('ep-owner').value=r.owner;
-  document.getElementById('ep-status').value=r.status;
+  document.getElementById('ep-date').value=r.date;document.getElementById('ep-item').value=r.item;document.getElementById('ep-practice').value=r.practice;document.getElementById('ep-owner').value=r.owner;document.getElementById('ep-status').value=r.status;
   document.getElementById('modal-plan-title').textContent=i===null?'Add plan item':'Edit plan item';
   document.getElementById('ep-delete-btn').style.display=i===null?'none':'inline-block';
   openModal('editPlan');
@@ -793,36 +1041,29 @@ function openPlanModal(i){
 function savePlan(){
   const i=+document.getElementById('ep-idx').value;
   const obj={date:document.getElementById('ep-date').value,item:document.getElementById('ep-item').value,practice:document.getElementById('ep-practice').value,owner:document.getElementById('ep-owner').value,status:document.getElementById('ep-status').value};
-  if(i===-1) D.plan.push(obj); else D.plan[i]=obj;
-  closeModal('editPlan'); renderPlan();
+  if(i===-1)D.plan.push(obj);else D.plan[i]=obj;
+  closeModal('editPlan');renderPlan();markUnsaved();
 }
-function deletePlan(){ const i=+document.getElementById('ep-idx').value; if(i>=0) D.plan.splice(i,1); closeModal('editPlan'); renderPlan(); }
+function deletePlan(){const i=+document.getElementById('ep-idx').value;if(i>=0)D.plan.splice(i,1);closeModal('editPlan');renderPlan();markUnsaved();}
 
 function renderTimeline(){
   const total=25;
   const tracks=[
-    {label:'Data normalization',start:1,end:3,color:'#534AB7'},
-    {label:'DOW / QA pass',start:1,end:3,color:'#534AB7'},
-    {label:'WorkList fix',start:0,end:2,color:'#E24B4A'},
-    {label:'RPFL validation',start:2,end:5,color:'#639922'},
-    {label:'RPFL go/no-go',start:5,end:6,color:'#639922'},
-    {label:'MAA prep',start:4,end:7,color:'#EF9F27'},
-    {label:'Integration freeze',start:7,end:7.5,color:'#185FA5'},
-    {label:'MAA validation',start:7,end:12,color:'#EF9F27'},
-    {label:'MAA go/no-go',start:12,end:13,color:'#EF9F27'},
-    {label:'RAF validation',start:11,end:23,color:'#E24B4A'},
+    {label:'Data normalization',start:1,end:3,color:'#534AB7'},{label:'DOW / QA pass',start:1,end:3,color:'#534AB7'},
+    {label:'WorkList fix',start:0,end:2,color:'#E24B4A'},{label:'RPFL validation',start:2,end:5,color:'#639922'},
+    {label:'RPFL go/no-go',start:5,end:6,color:'#639922'},{label:'MAA prep',start:4,end:7,color:'#EF9F27'},
+    {label:'Integration freeze',start:7,end:7.5,color:'#185FA5'},{label:'MAA validation',start:7,end:12,color:'#EF9F27'},
+    {label:'MAA go/no-go',start:12,end:13,color:'#EF9F27'},{label:'RAF validation',start:11,end:23,color:'#E24B4A'},
     {label:'RAF go/no-go',start:23,end:25,color:'#E24B4A'}
   ];
   const ms=[{day:6,color:'#639922',lbl:'RPFL'},{day:13,color:'#EF9F27',lbl:'MAA'},{day:24,color:'#E24B4A',lbl:'RAF'}];
-  let html=`<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-bottom:14px">
-    ${ms.map(m=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:${m.color};border-radius:2px;display:inline-block"></span>${m.lbl} ${m.lbl==='RPFL'?fmtDate(D.settings.RPFLDate):m.lbl==='MAA'?fmtDate(D.settings.maaDate):fmtDate(D.settings.rafDate)}</span>`).join('')}
-  </div>`;
+  let html=`<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-bottom:14px">${ms.map(m=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:${m.color};border-radius:2px;display:inline-block"></span>${m.lbl} ${m.lbl==='RPFL'?fmtDate(D.settings.RPFLDate):m.lbl==='MAA'?fmtDate(D.settings.maaDate):fmtDate(D.settings.rafDate)}</span>`).join('')}</div>`;
   tracks.forEach(t=>{
-    const left=Math.round((t.start/total)*100), width=Math.max(Math.round(((t.end-t.start)/total)*100),2);
+    const left=Math.round((t.start/total)*100),width=Math.max(Math.round(((t.end-t.start)/total)*100),2);
     html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
       <div style="font-size:10px;color:var(--text2);min-width:115px;text-align:right">${t.label}</div>
       <div style="flex:1;background:var(--bg2);border-radius:3px;height:20px;position:relative;overflow:hidden">
-        <div style="position:absolute;left:${left}%;width:${width}%;height:20px;background:${t.color};border-radius:3px;display:flex;align-items:center;padding:0 5px;font-size:10px;font-weight:600;color:white;overflow:hidden;white-space:nowrap">${width>9?t.label:''}</div>
+        <div style="position:absolute;left:${left}%;width:${width}%;height:20px;background:${t.color};border-radius:3px;display:flex;align-items:center;padding:0 5px;font-size:10px;font-weight:700;color:white;overflow:hidden;white-space:nowrap">${width>9?t.label:''}</div>
         ${ms.map(m=>`<div style="position:absolute;left:${Math.round((m.day/total)*100)}%;width:1.5px;height:20px;background:${m.color};opacity:.6"></div>`).join('')}
       </div>
     </div>`;
@@ -832,15 +1073,15 @@ function renderTimeline(){
 }
 
 function renderScripts(){
-  ['open','wins','risks','asks','close','execask'].forEach(k=>{
-    const el=document.getElementById('script-'+k); if(el) el.value=D.script[k];
-  });
+  ['open','wins','risks','asks','close','execask'].forEach(k=>{const el=document.getElementById('script-'+k);if(el)el.value=D.script[k];});
 }
 
-/* ── BUNDLE MODAL ── */
-function openModal(id, arg){
+/* ════════════════════════════════════════════
+   BUNDLE MODAL
+   ════════════════════════════════════════════ */
+function openModal(id,arg){
   if(id==='editBundle'){
-    const p=arg, b=D.bundles[p];
+    const p=arg,b=D.bundles[p];
     document.getElementById('eb-practice').value=p;
     document.getElementById('modal-bundle-title').textContent='Edit bundle — '+p;
     document.getElementById('eb-rag').value=b.rag;
@@ -849,9 +1090,8 @@ function openModal(id, arg){
     document.getElementById('eb-conf').value=b.conf;
     document.getElementById('eb-conf-val').textContent=b.conf+'%';
     document.getElementById('eb-modules-section').innerHTML=MODULES.map(m=>{
-      const mk=m.replace(/ /g,'_'), mod=b.modules[m];
-      return `<div class="card-surface" style="margin-bottom:8px">
-        <div style="font-size:12px;font-weight:600;margin-bottom:8px">${m}</div>
+      const mk=m.replace(/ /g,'_'),mod=b.modules[m];
+      return `<div class="card-surface" style="margin-bottom:8px"><div style="font-size:12px;font-weight:700;margin-bottom:8px">${m}</div>
         <div class="form-grid">
           <div class="form-row"><label>% Complete: <span id="ebm-pctv-${mk}">${mod.pct}%</span></label>
             <input type="range" min="0" max="100" step="1" id="ebm-pct-${mk}" value="${mod.pct}" oninput="document.getElementById('ebm-pctv-${mk}').textContent=this.value+'%'"></div>
@@ -870,9 +1110,12 @@ function openModal(id, arg){
     document.getElementById('s-maa-date').value=D.settings.maaDate;
     document.getElementById('s-raf-date').value=D.settings.rafDate;
   }
+  if(id==='editRisk')openRiskModal(arg===undefined?null:arg);
+  if(id==='editDecision')openDecisionModal(arg===undefined?null:arg);
+  if(id==='editPlan')openPlanModal(arg===undefined?null:arg);
   document.getElementById('overlay-'+id).classList.add('open');
 }
-function closeModal(id){ document.getElementById('overlay-'+id).classList.remove('open'); }
+function closeModal(id){document.getElementById('overlay-'+id).classList.remove('open');}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
 function saveBundleEdit(){
@@ -887,7 +1130,7 @@ function saveBundleEdit(){
     D.bundles[p].modules[m].rag=document.getElementById(`ebm-rag-${k}`).value;
     D.bundles[p].modules[m].status=document.getElementById(`ebm-status-${k}`).value;
   });
-  closeModal('editBundle'); renderBundles(); renderModuleMatrix(); renderConfidence(); renderCharts();
+  closeModal('editBundle');renderBundles();renderModuleMatrix();renderConfidence();renderCharts();markUnsaved();
 }
 
 function saveSettings(){
@@ -896,22 +1139,25 @@ function saveSettings(){
   D.settings.RPFLDate=document.getElementById('s-RPFL-date').value;
   D.settings.maaDate=document.getElementById('s-maa-date').value;
   D.settings.rafDate=document.getElementById('s-raf-date').value;
-  closeModal('settings'); renderAll(); showToast('Settings updated');
+  closeModal('settings');renderAll();markUnsaved();showToast('Settings updated — save to persist','info');
 }
 
-/* ── CHARTS ── */
+/* ════════════════════════════════════════════
+   CHARTS
+   ════════════════════════════════════════════ */
+let charts={};
 function renderCharts(){
   const valData=MODULES.map(m=>({r:D.bundles.RPFL.modules[m].val||0,m:D.bundles.MAA.modules[m].val||0,f:D.bundles.RAF.modules[m].val||0}));
-  if(charts.val){charts.val.destroy();}
+  if(charts.val)charts.val.destroy();
   const vc=document.getElementById('chart-validation');
-  if(vc) charts.val=new Chart(vc,{type:'bar',data:{labels:MODULES.map(m=>m.length>10?m.slice(0,10)+'…':m),datasets:[{label:'RPFL',data:valData.map(d=>d.r),backgroundColor:'#378ADD'},{label:'MAA',data:valData.map(d=>d.m),backgroundColor:'#EF9F27'},{label:'RAF',data:valData.map(d=>d.f),backgroundColor:'#E24B4A'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
+  if(vc)charts.val=new Chart(vc,{type:'bar',data:{labels:MODULES.map(m=>m.length>10?m.slice(0,10)+'…':m),datasets:[{label:'RPFL',data:valData.map(d=>d.r),backgroundColor:'#378ADD'},{label:'MAA',data:valData.map(d=>d.m),backgroundColor:'#EF9F27'},{label:'RAF',data:valData.map(d=>d.f),backgroundColor:'#E24B4A'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
 
   const compData=MODULES.map(m=>Math.round(PRACTICES.reduce((a,p)=>a+D.bundles[p].modules[m].pct,0)/PRACTICES.length));
-  if(charts.comp){charts.comp.destroy();}
+  if(charts.comp)charts.comp.destroy();
   const cc=document.getElementById('chart-completion');
-  if(cc) charts.comp=new Chart(cc,{type:'bar',data:{labels:MODULES.map(m=>m.length>12?m.slice(0,12)+'…':m),datasets:[{label:'% complete',data:compData,backgroundColor:'#1D9E75',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},y:{ticks:{font:{size:11}}}}}});
+  if(cc)charts.comp=new Chart(cc,{type:'bar',data:{labels:MODULES.map(m=>m.length>12?m.slice(0,12)+'…':m),datasets:[{label:'% complete',data:compData,backgroundColor:'#1D9E75',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},y:{ticks:{font:{size:11}}}}}});
 
-  if(charts.risk){charts.risk.destroy();}
+  if(charts.risk)charts.risk.destroy();
   const rc=document.getElementById('chart-risk');
   if(rc){
     const byRag=rag=>D.risks.filter(r=>r.rag===rag).map(r=>({x:r.likelihood,y:r.impact,label:r.risk}));
@@ -919,7 +1165,9 @@ function renderCharts(){
   }
 }
 
-/* ── NAV ── */
+/* ════════════════════════════════════════════
+   NAV
+   ════════════════════════════════════════════ */
 function showPane(id,btn){
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -928,7 +1176,10 @@ function showPane(id,btn){
   setTimeout(renderCharts,60);
 }
 
-loadData();
+/* ════════════════════════════════════════════
+   BOOT
+   ════════════════════════════════════════════ */
+initDashboard();
 </script>
 </body>
 </html>
