@@ -489,8 +489,8 @@
 /* ════════════════════════════════════════
    PASTE YOUR SUPABASE CREDENTIALS HERE
    ════════════════════════════════════════ */
-const SUPA_URL = 'https://whileobcjllzwhvyckbm.supabase.co';   // e.g. https://xyzxyz.supabase.co
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoaWxlb2Jjamxsendodnlja2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NjU0MjIsImV4cCI6MjA5MjQ0MTQyMn0.tZeoICWFa1KpztIK5oUHLDLHY8IQF2wEqfY0vkImVBw';       // eyJhbGci...
+const SUPA_URL = 'YOUR_SUPABASE_PROJECT_URL';   // e.g. https://xyzxyz.supabase.co
+const SUPA_KEY = 'YOUR_SUPABASE_ANON_KEY';       // eyJhbGci...
 
 /* ════ DO NOT EDIT BELOW THIS LINE ════ */
 const TABLE   = 'dashboard';
@@ -582,7 +582,7 @@ async function saveData() {
 
 async function saveToSupabase() {
   try {
-    const payload = JSON.stringify({ value: JSON.stringify(D), updated_at: new Date().toISOString() });
+    const payload = JSON.stringify({ value: JSON.stringify(D) });
     const res = await fetch(
       `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}`,
       { method: 'PATCH', headers: getHeaders(true), body: payload }
