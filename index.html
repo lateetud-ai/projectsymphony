@@ -37,9 +37,7 @@
   .config-banner .icon{font-size:18px;flex-shrink:0;margin-top:1px}
   .config-banner h3{font-size:13px;font-weight:700;color:var(--warn-text);margin-bottom:4px}
   .config-banner p{font-size:12px;color:var(--warn-text);line-height:1.5;margin-bottom:8px}
-  .config-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-  .config-banner input{font-family:inherit;font-size:12px;color:var(--text);background:var(--bg);border:1px solid var(--warn-border);border-radius:6px;padding:7px 10px;width:100%}
-  .config-banner input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px rgba(239,159,39,.2)}
+
   .config-status{font-size:11px;margin-top:6px;padding:5px 10px;border-radius:6px;display:inline-block}
   .status-ok{background:var(--success-bg);color:var(--success-text)}
   .status-err{background:var(--danger-bg);color:var(--danger-text)}
@@ -158,30 +156,15 @@
 <body>
 <div class="page">
 
-<!-- ═══ SUPABASE CONFIG BANNER ═══ -->
-<div class="config-banner" id="config-banner">
+<!-- ═══ SUPABASE STATUS PANEL (open via ⚡ DB button) ═══ -->
+<div class="config-banner" id="config-banner" style="display:none">
   <div class="icon">&#9889;</div>
   <div style="flex:1">
-    <h3>Supabase connection — paste your credentials below</h3>
-    <p>Find these in your Supabase project: <strong>Settings → API</strong>. Paste once and click Connect — credentials are saved in this browser for future visits.</p>
-    <div class="config-fields">
-      <div>
-        <label style="color:var(--warn-text)">Project URL</label>
-        <input type="text" id="cfg-url" placeholder="https://xyzxyzxyz.supabase.co" autocomplete="off" spellcheck="false">
-      </div>
-      <div>
-        <label style="color:var(--warn-text)">Anon public key (starts with eyJ...)</label>
-        <input type="text" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off" spellcheck="false">
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">
-      <button class="btn btn-warn" onclick="connectSupabase()">Connect &amp; load data</button>
-      <button class="btn-sm" onclick="dismissBanner()">Already connected — hide this</button>
-      <span class="config-status status-pending" id="conn-status">Not connected</span>
-    </div>
-    <div style="font-size:11px;color:var(--warn-text);margin-top:8px;opacity:.8">
-      Your credentials are stored only in this browser's localStorage. They are never sent anywhere except directly to your Supabase project.
-    </div>
+    <h3>Supabase connection</h3>
+    <p>Status: <span class="config-status status-pending" id="conn-status">Checking...</span></p>
+    <p style="margin-top:8px">Credentials are embedded in this file at the top of the <code>&lt;script&gt;</code> block as <code>SUPA_URL</code> and <code>SUPA_KEY</code>. To update them, edit <code>index.html</code> on GitHub and commit — no browser reconfiguration needed.</p>
+    <button class="btn-sm" style="margin-top:10px" onclick="connectSupabase().then(()=>{})">Re-test connection</button>
+    <button class="btn-sm" style="margin-top:10px;margin-left:8px" onclick="document.getElementById('config-banner').style.display='none'">Close</button>
   </div>
 </div>
 
@@ -201,7 +184,7 @@
     <button class="btn" onclick="openModal('settings')">&#9881; Settings</button>
     <button class="btn btn-success" id="save-btn" onclick="saveData()">&#10003; Save</button>
     <button class="btn btn-primary" onclick="exportHTML()">&#8659; Export HTML</button>
-    <button class="btn-sm" onclick="document.getElementById('config-banner').style.display='flex'" title="Supabase settings">&#9889; DB</button>
+    <button class="btn-sm" onclick="document.getElementById('config-banner').style.display='block'" title="Supabase connection status">&#9889; DB</button>
   </div>
 </div>
 
@@ -503,13 +486,16 @@
 /* ════════════════════════════════════════════
    SUPABASE CONFIG
    ════════════════════════════════════════════ */
-const CRED_KEY = 'supa_creds_symphony';
-const TABLE    = 'dashboard';
-const ROW_KEY  = 'pmo-data';
-const LS_DATA  = 'pmo_symphony_v1';
+/* ════════════════════════════════════════
+   PASTE YOUR SUPABASE CREDENTIALS HERE
+   ════════════════════════════════════════ */
+const SUPA_URL = 'https://whileobcjllzwhvyckbm.supabase.co';   // e.g. https://xyzxyz.supabase.co
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoaWxlb2Jjamxsendodnlja2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NjU0MjIsImV4cCI6MjA5MjQ0MTQyMn0.tZeoICWFa1KpztIK5oUHLDLHY8IQF2wEqfY0vkImVBw';       // eyJhbGci...
 
-let SUPA_URL = '';
-let SUPA_KEY = '';
+/* ════ DO NOT EDIT BELOW THIS LINE ════ */
+const TABLE   = 'dashboard';
+const ROW_KEY = 'pmo-data';
+const LS_DATA = 'pmo_symphony_v1';
 let isSupaConnected = false;
 
 function getHeaders(prefer = false) {
@@ -522,62 +508,36 @@ function getHeaders(prefer = false) {
   return h;
 }
 
-/* Load saved credentials on page start */
+/* Credentials are hardcoded — check they are set */
 function loadCreds() {
-  try {
-    const c = JSON.parse(localStorage.getItem(CRED_KEY) || '{}');
-    if (c.url && c.key) {
-      SUPA_URL = c.url.replace(/\/$/, '');
-      SUPA_KEY = c.key;
-      document.getElementById('cfg-url').value = SUPA_URL;
-      document.getElementById('cfg-key').value = SUPA_KEY;
-      return true;
-    }
-  } catch(e) {}
-  return false;
+  return SUPA_URL !== 'YOUR_SUPABASE_PROJECT_URL' && SUPA_KEY !== 'YOUR_SUPABASE_ANON_KEY'
+    && SUPA_URL.length > 10 && SUPA_KEY.length > 10;
 }
 
+/* Credentials are now hardcoded — this function only used for manual re-test */
 async function connectSupabase() {
-  const url = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
-  const key = document.getElementById('cfg-key').value.trim();
-  if (!url || !key) { setConnStatus('Enter both URL and key', 'err'); return; }
-
-  SUPA_URL = url;
-  SUPA_KEY = key;
   setConnStatus('Testing connection...', 'pending');
-
   try {
     const res = await fetch(
       `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}&select=key`,
       { headers: getHeaders() }
     );
-    if (!res.ok) throw new Error(`HTTP ${res.status} — check URL and key`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const rows = await res.json();
-
-    /* If no row exists yet, insert the seed row */
     if (rows.length === 0) {
       const ins = await fetch(`${SUPA_URL}/rest/v1/${TABLE}`, {
         method: 'POST',
         headers: { ...getHeaders(true), 'Prefer': 'return=minimal' },
         body: JSON.stringify({ key: ROW_KEY, value: '{}' })
       });
-      if (!ins.ok) throw new Error(`Could not create row — check table name and permissions`);
+      if (!ins.ok) throw new Error('Could not create row');
     }
-
-    /* Save creds */
-    localStorage.setItem(CRED_KEY, JSON.stringify({ url, key }));
     isSupaConnected = true;
     setConnStatus('Connected to Supabase', 'ok');
-    document.getElementById('db-mode-lbl').textContent = 'Supabase mode';
-    document.getElementById('db-mode-lbl').style.color = 'var(--success-text)';
-    showToast('Connected! Loading data from Supabase...', 'info');
-
-    await loadFromSupabase();
-    document.getElementById('config-banner').style.display = 'none';
-
+    showToast('Supabase connection verified', 'ok');
   } catch(e) {
     setConnStatus('Error: ' + e.message, 'err');
-    showToast('Connection failed — see banner for details', 'err');
+    showToast('Connection test failed — check credentials in HTML source', 'err');
     console.error(e);
   }
 }
@@ -588,9 +548,7 @@ function setConnStatus(msg, type) {
   el.className = 'config-status ' + { ok: 'status-ok', err: 'status-err', pending: 'status-pending' }[type];
 }
 
-function dismissBanner() {
-  document.getElementById('config-banner').style.display = 'none';
-}
+/* dismissBanner removed — panel closed via inline onclick */
 
 /* ════════════════════════════════════════════
    SAVE / LOAD — auto-routes to Supabase or localStorage
@@ -684,35 +642,52 @@ function loadFromLocalStorage() {
 }
 
 async function initDashboard() {
-  const hasCreds = loadCreds();
-  if (hasCreds) {
-    /* Try Supabase first */
-    try {
-      const res = await fetch(
-        `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}&select=value`,
-        { headers: getHeaders() }
-      );
-      if (!res.ok) throw new Error();
-      const rows = await res.json();
-      if (rows.length && rows[0].value && rows[0].value !== '{}') {
-        D = JSON.parse(rows[0].value);
-      }
-      isSupaConnected = true;
-      setConnStatus('Connected to Supabase', 'ok');
-      document.getElementById('db-mode-lbl').textContent = 'Supabase mode';
-      document.getElementById('db-mode-lbl').style.color = 'var(--success-text)';
-      document.getElementById('config-banner').style.display = 'none';
-      setSaveDot('saved');
-      updateSaveLabel('Loaded from Supabase');
-    } catch(e) {
-      /* Supabase unavailable — fall back silently */
-      loadFromLocalStorage();
-      document.getElementById('db-mode-lbl').textContent = 'localStorage (Supabase offline)';
-    }
-  } else {
-    /* No creds yet — load from localStorage */
+  if (!loadCreds()) {
+    /* Credentials not yet set — show banner and fall back to localStorage */
+    document.getElementById('config-banner').style.display = 'block';
+    setConnStatus('Credentials not set — edit SUPA_URL and SUPA_KEY in HTML source', 'err');
+    document.getElementById('db-mode-lbl').textContent = 'localStorage mode (no DB credentials)';
     loadFromLocalStorage();
+    showDashboard();
+    return;
   }
+
+  /* Credentials are set — try Supabase */
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/${TABLE}?key=eq.${ROW_KEY}&select=value`,
+      { headers: getHeaders() }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = await res.json();
+
+    /* Seed the row if it does not exist yet */
+    if (rows.length === 0) {
+      await fetch(`${SUPA_URL}/rest/v1/${TABLE}`, {
+        method: 'POST',
+        headers: { ...getHeaders(true), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ key: ROW_KEY, value: '{}' })
+      });
+    } else if (rows[0].value && rows[0].value !== '{}') {
+      D = JSON.parse(rows[0].value);
+    }
+
+    isSupaConnected = true;
+    setConnStatus('Connected — ' + new Date().toLocaleTimeString(), 'ok');
+    document.getElementById('db-mode-lbl').textContent = 'Supabase — live database';
+    document.getElementById('db-mode-lbl').style.color = 'var(--success-text)';
+    setSaveDot('saved');
+    updateSaveLabel('Loaded from Supabase');
+
+  } catch(e) {
+    /* Supabase unreachable — fall back to localStorage silently */
+    console.warn('Supabase unavailable, using localStorage:', e);
+    loadFromLocalStorage();
+    setConnStatus('Offline — using localStorage fallback', 'err');
+    document.getElementById('db-mode-lbl').textContent = 'localStorage (Supabase offline)';
+    document.getElementById('db-mode-lbl').style.color = 'var(--warn-text)';
+  }
+
   showDashboard();
 }
 
