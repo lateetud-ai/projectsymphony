@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProjectSymphony — PMO Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f4; --bg3: #eeece8;
+    --text: #1a1a18; --text2: #6b6b66; --text3: #9b9b96;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --info-bg: #e6f1fb; --info-text: #0c447c; --info-border: #85b7eb;
+    --success-bg: #eaf3de; --success-text: #3b6d11; --success-border: #97c459;
+    --warn-bg: #faeeda; --warn-text: #854f0b; --warn-border: #ef9f27;
+    --danger-bg: #fcebeb; --danger-text: #a32d2d; --danger-border: #f09595;
+    --radius: 8px; --radius-lg: 12px;
+    --green: #639922; --amber: #EF9F27; --red: #E24B4A;
+    --blue: #378ADD; --purple: #534AB7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #333330;
+      --text: #f0efea; --text2: #a8a8a2; --text3: #6b6b66;
+      --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
+      --info-bg: #0c2d4a; --info-text: #85b7eb;
+      --success-bg: #1a2f0a; --success-text: #97c459;
+      --warn-bg: #2e1e05; --warn-text: #FAC775;
+      --danger-bg: #2e0a0a; --danger-text: #F09595;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; background: var(--bg3); color: var(--text); line-height: 1.5; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+
+  /* TOPBAR */
+  .topbar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .topbar h1 { font-size: 17px; font-weight: 600; margin-bottom: 2px; }
+  .topbar p { font-size: 11px; color: var(--text2); }
+  .topbar-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+  /* NAV */
+  .nav-wrap { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 6px 10px; margin-bottom: 14px; display: flex; gap: 2px; flex-wrap: wrap; }
+  .nav-btn { padding: 7px 14px; font-size: 12px; border: none; background: none; cursor: pointer; color: var(--text2); border-radius: var(--radius); font-family: inherit; }
+  .nav-btn:hover { background: var(--bg2); color: var(--text); }
+  .nav-btn.active { background: var(--bg2); color: var(--text); font-weight: 600; }
+  .pane { display: none; } .pane.on { display: block; }
+
+  /* BUTTONS */
+  .btn { padding: 7px 14px; border: 0.5px solid var(--border2); border-radius: var(--radius); cursor: pointer; font-size: 12px; background: var(--bg); color: var(--text); font-family: inherit; transition: background .15s; }
+  .btn:hover { background: var(--bg2); }
+  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+  .btn-success { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+  .btn-danger { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; border: 0.5px solid var(--border); border-radius: 6px; cursor: pointer; background: var(--bg); color: var(--text); font-family: inherit; }
+  .btn-sm:hover { background: var(--bg2); }
+
+  /* FORMS */
+  input[type=text], input[type=date], textarea, select {
+    font-family: inherit; font-size: 12px; color: var(--text); background: var(--bg);
+    border: 0.5px solid var(--border); border-radius: 6px; padding: 6px 9px; width: 100%;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border2); box-shadow: 0 0 0 2px rgba(55,138,221,0.15); }
+  textarea { resize: vertical; min-height: 52px; }
+  label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 3px; }
+  input[type=range] { width: 100%; cursor: pointer; }
+
+  /* CARDS */
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 12px; }
+  .card-surface { background: var(--bg2); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; }
+  .section-hdr { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; padding-bottom: 7px; border-bottom: 0.5px solid var(--border); }
+
+  /* GRID */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .g4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  @media (max-width: 700px) { .g2, .g3 { grid-template-columns: 1fr; } }
+
+  /* KPI */
+  .kpi { background: var(--bg2); border-radius: var(--radius); padding: 13px; text-align: center; }
+  .kpi-lbl { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .kpi-val { font-size: 22px; font-weight: 700; }
+  .kpi-sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+  /* PILLS */
+  .pill { padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; white-space: nowrap; }
+  .pill-g { background: var(--success-bg); color: var(--success-text); }
+  .pill-a { background: var(--warn-bg); color: var(--warn-text); }
+  .pill-r { background: var(--danger-bg); color: var(--danger-text); }
+  .pill-b { background: var(--info-bg); color: var(--info-text); }
+  .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .b-done { background: var(--success-bg); color: var(--success-text); }
+  .b-ip { background: var(--info-bg); color: var(--info-text); }
+  .b-risk { background: var(--warn-bg); color: var(--warn-text); }
+  .b-ns { background: var(--bg2); color: var(--text2); }
+  .b-blk { background: var(--danger-bg); color: var(--danger-text); }
+
+  /* PROGRESS */
+  .pb { background: var(--bg2); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 4px; }
+  .pb-fill { height: 6px; border-radius: 4px; transition: width .3s; }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 500px; }
+  th { background: var(--bg2); padding: 8px 10px; text-align: left; font-weight: 600; color: var(--text2); border-bottom: 0.5px solid var(--border); white-space: nowrap; }
+  td { padding: 8px 10px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg2); }
+
+  /* MODAL */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+  .overlay.open { display: flex; }
+  .modal { background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-lg); padding: 20px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+  .modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .modal-title { font-size: 15px; font-weight: 600; }
+  .form-row { margin-bottom: 12px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* TOAST */
+  .toast { display: none; position: fixed; bottom: 20px; right: 20px; background: var(--success-bg); color: var(--success-text); border: 0.5px solid var(--success-border); border-radius: var(--radius); padding: 10px 18px; font-size: 13px; font-weight: 600; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+  .toast.show { display: block; animation: slideup .2s ease; }
+  @keyframes slideup { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* CONF BAR */
+  .conf-track { background: var(--bg2); border-radius: 4px; height: 16px; overflow: hidden; flex: 1; }
+  .conf-fill { height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 10px; font-weight: 700; color: white; transition: width .3s; }
+
+  /* INLINE EDITABLE */
+  [contenteditable] { outline: none; cursor: text; border-radius: 3px; }
+  [contenteditable]:hover { background: var(--bg2); }
+  [contenteditable]:focus { background: var(--bg2); box-shadow: 0 0 0 2px rgba(55,138,221,.2); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div>
+    <h1 id="proj-name-display">ProjectSymphony — Core Platform Access</h1>
+    <p id="meta-lbl">Last saved: never &nbsp;·&nbsp; <span id="today-lbl"></span></p>
+  </div>
+  <div class="topbar-actions">
+    <span id="prog-rag-pill" class="pill pill-a">Program: AMBER</span>
+    <button class="btn" onclick="openModal('settings')">&#9881; Settings</button>
+    <button class="btn btn-success" onclick="saveData()">&#10003; Save</button>
+    <button class="btn btn-primary" onclick="exportHTML()">&#8659; Export HTML</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-wrap">
+  <button class="nav-btn active" onclick="showPane('overview',this)">Overview</button>
+  <button class="nav-btn" onclick="showPane('bundles',this)">Bundle gates</button>
+  <button class="nav-btn" onclick="showPane('modules',this)">Module health</button>
+  <button class="nav-btn" onclick="showPane('risks',this)">Risks</button>
+  <button class="nav-btn" onclick="showPane('decisions',this)">Decisions</button>
+  <button class="nav-btn" onclick="showPane('gongo',this)">Go/no-go</button>
+  <button class="nav-btn" onclick="showPane('plan',this)">2-week plan</button>
+  <button class="nav-btn" onclick="showPane('timeline',this)">Timeline</button>
+  <button class="nav-btn" onclick="showPane('script',this)">Verbal script</button>
+</div>
+
+<!-- ═══ OVERVIEW ═══ -->
+<div id="pane-overview" class="pane on">
+  <div id="kpi-row" class="g4"></div>
+  <div class="g2">
+    <div>
+      <div class="section-hdr">Executive summary</div>
+      <div class="card"><textarea id="exec-summary" rows="5" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="section-hdr">Completed since last update</div>
+      <div class="card" id="completed-list"></div>
+      <button class="btn-sm" style="margin-top:6px" onclick="addListItem('completed')">+ Add item</button>
+    </div>
+    <div>
+      <div class="section-hdr">Confidence by practice</div>
+      <div class="card" id="conf-panel"></div>
+      <div class="section-hdr" style="margin-top:14px">In progress this week</div>
+      <div class="card" id="inprogress-list"></div>
+      <button class="btn-sm" style="margin-top:6px" onclick="addListItem('inprogress')">+ Add item</button>
+    </div>
+  </div>
+  <div class="section-hdr">Validation readiness by module</div>
+  <div class="card"><div style="position:relative;height:200px"><canvas id="chart-validation" role="img" aria-label="Validation readiness by module grouped bar chart">Validation readiness data.</canvas></div></div>
+</div>
+
+<!-- ═══ BUNDLE GATES ═══ -->
+<div id="pane-bundles" class="pane">
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn" onclick="openModal('editBundle','RAFL')">Edit RAFL bundle</button>
+    <button class="btn" onclick="openModal('editBundle','MAA')">Edit MAA bundle</button>
+    <button class="btn" onclick="openModal('editBundle','RAF')">Edit RAF bundle</button>
+  </div>
+  <div id="bundle-cards" class="g3"></div>
+</div>
+
+<!-- ═══ MODULE HEALTH ═══ -->
+<div id="pane-modules" class="pane">
+  <p style="font-size:11px;color:var(--text2);margin-bottom:10px">Click any cell to edit that module's data.</p>
+  <div class="card tbl-wrap" id="module-matrix"></div>
+  <div class="section-hdr" style="margin-top:16px">Overall module completion</div>
+  <div class="card"><div style="position:relative;height:180px"><canvas id="chart-completion" role="img" aria-label="Module completion horizontal bar chart">Module completion data.</canvas></div></div>
+</div>
+
+<!-- ═══ RISKS ═══ -->
+<div id="pane-risks" class="pane">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div id="risk-summary-lbl" style="font-size:12px;color:var(--text2)"></div>
+    <button class="btn btn-primary" onclick="openModal('editRisk',null)">+ Add risk</button>
+  </div>
+  <div class="card tbl-wrap" id="risk-table"></div>
+  <div class="section-hdr" style="margin-top:16px">Risk heatmap — likelihood vs. impact</div>
+  <div class="card"><div style="position:relative;height:230px"><canvas id="chart-risk" role="img" aria-label="Risk heatmap scatter chart">Risk heatmap.</canvas></div></div>
+</div>
+
+<!-- ═══ DECISIONS ═══ -->
+<div id="pane-decisions" class="pane">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button class="btn btn-primary" onclick="openModal('editDecision',null)">+ Add decision</button>
+  </div>
+  <div id="decision-cards"></div>
+</div>
+
+<!-- ═══ GO/NO-GO ═══ -->
+<div id="pane-gongo" class="pane">
+  <div id="gongo-panels" class="g3"></div>
+</div>
+
+<!-- ═══ 2-WEEK PLAN ═══ -->
+<div id="pane-plan" class="pane">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button class="btn btn-primary" onclick="openModal('editPlan',null)">+ Add item</button>
+  </div>
+  <div class="card tbl-wrap" id="plan-table"></div>
+</div>
+
+<!-- ═══ TIMELINE ═══ -->
+<div id="pane-timeline" class="pane">
+  <div class="card" id="timeline-panel"></div>
+</div>
+
+<!-- ═══ VERBAL SCRIPT ═══ -->
+<div id="pane-script" class="pane">
+  <div class="g2">
+    <div>
+      <div class="section-hdr">Opening narrative</div>
+      <div class="card"><textarea id="script-open" rows="5" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="section-hdr">Top 3 wins</div>
+      <div class="card"><textarea id="script-wins" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="section-hdr">Closing statement</div>
+      <div class="card"><textarea id="script-close" rows="3" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+    </div>
+    <div>
+      <div class="section-hdr">Top 3 risks</div>
+      <div class="card"><textarea id="script-risks" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="section-hdr">Top 3 asks</div>
+      <div class="card"><textarea id="script-asks" rows="4" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+      <div class="section-hdr">Executive ask</div>
+      <div class="card"><textarea id="script-execask" rows="3" style="border:none;background:transparent;width:100%;font-size:13px;line-height:1.6;color:var(--text);padding:0;font-family:inherit"></textarea></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn btn-success" onclick="saveData()">Save script</button>
+    <button class="btn btn-primary" onclick="exportHTML()">Export full dashboard</button>
+  </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Settings -->
+<div class="overlay" id="overlay-settings">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title">Program settings</span><button class="btn-sm" onclick="closeModal('settings')">&#10005;</button></div>
+    <div class="form-row"><label>Project name</label><input type="text" id="s-projname"></div>
+    <div class="form-grid">
+      <div class="form-row"><label>RAFL target date</label><input type="date" id="s-rafl-date"></div>
+      <div class="form-row"><label>MAA target date</label><input type="date" id="s-maa-date"></div>
+      <div class="form-row"><label>RAF target date</label><input type="date" id="s-raf-date"></div>
+      <div class="form-row"><label>Program RAG</label>
+        <select id="s-prog-rag"><option value="GREEN">GREEN</option><option value="AMBER">AMBER</option><option value="RED">RED</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn" onclick="closeModal('settings')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Apply settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Bundle -->
+<div class="overlay" id="overlay-editBundle">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-bundle-title">Edit bundle</span><button class="btn-sm" onclick="closeModal('editBundle')">&#10005;</button></div>
+    <input type="hidden" id="eb-practice">
+    <div class="form-grid">
+      <div class="form-row"><label>Bundle RAG</label>
+        <select id="eb-rag"><option value="GREEN">GREEN</option><option value="AMBER">AMBER</option><option value="RED">RED</option></select></div>
+      <div class="form-row"><label>ETA confidence: <span id="eb-conf-val">75%</span></label>
+        <input type="range" min="0" max="100" step="1" id="eb-conf" oninput="document.getElementById('eb-conf-val').textContent=this.value+'%'"></div>
+    </div>
+    <div class="form-row"><label>Critical blocker</label><textarea id="eb-blocker" rows="2"></textarea></div>
+    <div class="form-row"><label>Decision needed</label><textarea id="eb-decision" rows="2"></textarea></div>
+    <div id="eb-modules-section"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn" onclick="closeModal('editBundle')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBundleEdit()">Save bundle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Risk -->
+<div class="overlay" id="overlay-editRisk">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-risk-title">Add / edit risk</span><button class="btn-sm" onclick="closeModal('editRisk')">&#10005;</button></div>
+    <input type="hidden" id="er-idx">
+    <div class="form-row"><label>Risk description</label><textarea id="er-risk" rows="2"></textarea></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Practice impacted</label><input type="text" id="er-practice"></div>
+      <div class="form-row"><label>RAG</label><select id="er-rag"><option value="RED">RED</option><option value="AMBER">AMBER</option><option value="GREEN">GREEN</option></select></div>
+      <div class="form-row"><label>Likelihood (1–5): <span id="er-lh-val">3</span></label>
+        <input type="range" min="1" max="5" step="0.5" id="er-likelihood" oninput="document.getElementById('er-lh-val').textContent=this.value"></div>
+      <div class="form-row"><label>Impact (1–5): <span id="er-imp-val">3</span></label>
+        <input type="range" min="1" max="5" step="0.5" id="er-impact" oninput="document.getElementById('er-imp-val').textContent=this.value"></div>
+      <div class="form-row"><label>Mitigation owner</label><input type="text" id="er-owner"></div>
+      <div class="form-row"><label>Due date</label><input type="text" id="er-due" placeholder="e.g. Apr 23"></div>
+    </div>
+    <div class="form-row"><label>Mitigation plan</label><textarea id="er-mitigation" rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-danger" id="er-delete-btn" onclick="deleteRisk()">Delete</button>
+      <button class="btn" onclick="closeModal('editRisk')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRisk()">Save risk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Decision -->
+<div class="overlay" id="overlay-editDecision">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-dec-title">Add / edit decision</span><button class="btn-sm" onclick="closeModal('editDecision')">&#10005;</button></div>
+    <input type="hidden" id="ed-idx">
+    <div class="form-row"><label>Decision required</label><textarea id="ed-decision" rows="2"></textarea></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Needed by</label><input type="text" id="ed-needed" placeholder="e.g. Apr 23"></div>
+      <div class="form-row"><label>Practice at risk</label><input type="text" id="ed-practice"></div>
+      <div class="form-row"><label>Decision owner</label><input type="text" id="ed-owner"></div>
+      <div class="form-row"><label>Status</label>
+        <select id="ed-status"><option value="Open">Open</option><option value="In Review">In Review</option><option value="Resolved">Resolved</option></select></div>
+    </div>
+    <div class="form-row"><label>Consequence if unresolved</label><textarea id="ed-consequence" rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-danger" id="ed-delete-btn" onclick="deleteDecision()">Delete</button>
+      <button class="btn" onclick="closeModal('editDecision')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDecision()">Save decision</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Plan -->
+<div class="overlay" id="overlay-editPlan">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-plan-title">Add / edit plan item</span><button class="btn-sm" onclick="closeModal('editPlan')">&#10005;</button></div>
+    <input type="hidden" id="ep-idx">
+    <div class="form-grid">
+      <div class="form-row"><label>Date</label><input type="text" id="ep-date" placeholder="e.g. Apr 23–25"></div>
+      <div class="form-row"><label>Practice</label><input type="text" id="ep-practice"></div>
+    </div>
+    <div class="form-row"><label>Activity</label><textarea id="ep-item" rows="2"></textarea></div>
+    <div class="form-grid">
+      <div class="form-row"><label>Owner</label><input type="text" id="ep-owner"></div>
+      <div class="form-row"><label>Status</label>
+        <select id="ep-status"><option>Not Started</option><option>In Progress</option><option>Done</option><option>At Risk</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-danger" id="ep-delete-btn" onclick="deletePlan()">Delete</button>
+      <button class="btn" onclick="closeModal('editPlan')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePlan()">Save item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Module -->
+<div class="overlay" id="overlay-editModule">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-mod-title">Edit module</span><button class="btn-sm" onclick="closeModal('editModule')">&#10005;</button></div>
+    <input type="hidden" id="em-practice"><input type="hidden" id="em-module">
+    <div class="form-row"><label>Status</label>
+      <select id="em-status"><option>Not Started</option><option>In Progress</option><option>Done</option><option>At Risk</option><option>Blocked</option></select></div>
+    <div class="form-row"><label>% Complete: <span id="em-pct-val">50%</span></label>
+      <input type="range" min="0" max="100" step="1" id="em-pct" oninput="document.getElementById('em-pct-val').textContent=this.value+'%'"></div>
+    <div class="form-row"><label>RAG</label><select id="em-rag"><option>GREEN</option><option>AMBER</option><option>RED</option></select></div>
+    <div class="form-row"><label>Key dependency</label><input type="text" id="em-dep"></div>
+    <div class="form-row"><label>Validation readiness: <span id="em-val-val">0%</span></label>
+      <input type="range" min="0" max="100" step="1" id="em-val" oninput="document.getElementById('em-val-val').textContent=this.value+'%'"></div>
+    <div class="form-row"><label>Validation gaps</label><input type="text" id="em-gaps"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn" onclick="closeModal('editModule')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveModuleEdit()">Save module</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Go/No-Go Criterion -->
+<div class="overlay" id="overlay-editCriterion">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-crit-title">Edit criterion</span><button class="btn-sm" onclick="closeModal('editCriterion')">&#10005;</button></div>
+    <input type="hidden" id="ec-practice"><input type="hidden" id="ec-idx">
+    <div class="form-row"><label>Criterion text</label><input type="text" id="ec-text"></div>
+    <div class="form-row"><label>Status</label>
+      <select id="ec-status"><option>Not Started</option><option>In Progress</option><option>Done</option><option>Blocked</option></select></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-danger" onclick="deleteCriterion()">Delete</button>
+      <button class="btn" onclick="closeModal('editCriterion')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCriterion()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit List Item -->
+<div class="overlay" id="overlay-listItem">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-list-title">Edit item</span><button class="btn-sm" onclick="closeModal('listItem')">&#10005;</button></div>
+    <input type="hidden" id="li-list"><input type="hidden" id="li-idx">
+    <div class="form-row"><label>Item text</label><textarea id="li-text" rows="3"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-danger" onclick="deleteListItem()">Delete</button>
+      <button class="btn" onclick="closeModal('listItem')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveListItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MODULES = ['Forecasting','Cost Intelligence','Provider','Facility'];
+const PRACTICES = ['RAFL','MAA','RAF'];
+const RAG_COLOR = {GREEN:'#639922',AMBER:'#EF9F27',RED:'#E24B4A'};
+const STATUS_BADGE = {Done:'b-done','In Progress':'b-ip','At Risk':'b-risk','Not Started':'b-ns',Blocked:'b-blk'};
+const STORAGE_KEY = 'pmo_symphony_v1';
+
+let D = {
+  settings:{projName:'ProjectSymphony — Core Platform Access',progRag:'AMBER',raflDate:'2026-04-27',maaDate:'2026-05-04',rafDate:'2026-05-15'},
+  execSummary:'ProjectSymphony Core Platform Access is in active delivery across three practice gates: RAFL (Apr 27), MAA (May 4), and RAF (May 15). All four modules must bundle and launch together per practice — no partial releases. Engineering foundations (schema mapping, cross-database reporting) are complete. Active focus: data-model gap resolution, staging normalization, functional validation. This phase is accuracy-first; quality of validation is the primary success metric.',
+  completed:['Schema mapping completed — SymphonyMaster + SymphonyTenant','Cross-database reporting design finalized','WorkList gap identified and escalated','RAFL staging environment provisioned','Forecasting module functional spec signed off'],
+  inprogress:['WorkList + Location mapping resolution — target Apr 23','Staging data normalization sprint','Date/DOW coverage logic QA pass — RAFL','Cost Intelligence integration wiring for RAFL','RPCE logic spec review with backend'],
+  bundles:{
+    RAFL:{rag:'AMBER',blocker:'WorkList mapping unresolved; Location normalization pending',decision:'Approve WorkList mapping approach by Apr 23',conf:75,
+      modules:{
+        Forecasting:{status:'In Progress',pct:70,rag:'AMBER',dep:'WorkList gap closure',val:60,gaps:'Date/DOW logic, WorkList fields'},
+        'Cost Intelligence':{status:'In Progress',pct:65,rag:'AMBER',dep:'Staging normalization',val:55,gaps:'Staging normalization'},
+        Provider:{status:'In Progress',pct:60,rag:'AMBER',dep:'RPCE validation',val:50,gaps:'RPCE logic, Location'},
+        Facility:{status:'In Progress',pct:55,rag:'AMBER',dep:'Location mapping',val:45,gaps:'Location mapping'}}},
+    MAA:{rag:'AMBER',blocker:'SubPractice mapping TBD; staging data not normalized',decision:'Confirm SubPractice data ownership by Apr 25',conf:65,
+      modules:{
+        Forecasting:{status:'In Progress',pct:40,rag:'AMBER',dep:'RAFL learnings + MAA data load',val:10,gaps:'MAA data load pending'},
+        'Cost Intelligence':{status:'In Progress',pct:35,rag:'AMBER',dep:'MAA staging normalization',val:10,gaps:'MAA staging'},
+        Provider:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'},
+        Facility:{status:'Not Started',pct:10,rag:'RED',dep:'SubPractice mapping confirmed',val:5,gaps:'SubPractice mapping'}}},
+    RAF:{rag:'RED',blocker:'RPCE + Location gaps; integration churn risk',decision:'Approve integration stability owner by Apr 25',conf:60,
+      modules:{
+        Forecasting:{status:'Not Started',pct:5,rag:'RED',dep:'MAA completion + RAF data',val:0,gaps:'All'},
+        'Cost Intelligence':{status:'Not Started',pct:5,rag:'RED',dep:'MAA completion',val:0,gaps:'All'},
+        Provider:{status:'Not Started',pct:0,rag:'RED',dep:'RPCE gap closed',val:0,gaps:'RPCE + Location'},
+        Facility:{status:'Not Started',pct:0,rag:'RED',dep:'Location finalization',val:0,gaps:'Location finalization'}}}
+  },
+  risks:[
+    {risk:'WorkList mapping gap unresolved',practice:'RAFL (Apr 27)',rag:'RED',likelihood:4.5,impact:4.5,mitigation:'Engineering to confirm mapping source by Apr 23',owner:'<fill>',due:'Apr 23'},
+    {risk:'Backend/frontend integration churn',practice:'MAA + RAF',rag:'RED',likelihood:3.5,impact:4.0,mitigation:'Freeze interfaces Apr 28; assign stability owner',owner:'<fill>',due:'Apr 28'},
+    {risk:'Staging data not normalized',practice:'All practices',rag:'AMBER',likelihood:3.0,impact:3.0,mitigation:'Data eng sprint Apr 22–24',owner:'<fill>',due:'Apr 24'},
+    {risk:'Date/DOW coverage logic not validated',practice:'RAFL + MAA',rag:'AMBER',likelihood:3.0,impact:3.5,mitigation:'QA pass Apr 22–24',owner:'<fill>',due:'Apr 24'},
+    {risk:'SubPractice mapping not confirmed',practice:'MAA (May 4)',rag:'AMBER',likelihood:3.5,impact:3.5,mitigation:'Confirm ownership with MAA practice lead by Apr 25',owner:'<fill>',due:'Apr 25'},
+    {risk:'RPCE logic undefined for RAF',practice:'RAF (May 15)',rag:'AMBER',likelihood:2.5,impact:3.5,mitigation:'RPCE spec review May 1 with backend',owner:'<fill>',due:'May 1'}
+  ],
+  decisions:[
+    {decision:'Approve WorkList mapping approach or provide alternate source',needed:'Apr 23',practice:'RAFL',owner:'<fill>',status:'Open',consequence:'RAFL bundle cannot complete validation; Apr 27 at risk'},
+    {decision:'Confirm SubPractice data ownership for MAA',needed:'Apr 25',practice:'MAA',owner:'<fill>',status:'Open',consequence:'Provider + Facility MAA cannot start; May 4 at risk'},
+    {decision:'Approve dedicated integration stability resource',needed:'Apr 25',practice:'MAA + RAF',owner:'<fill>',status:'Open',consequence:'Integration churn continues; both MAA and RAF threatened'}
+  ],
+  gongo:{
+    RAFL:{criteria:[{text:'All 4 modules passing staging validation',status:'In Progress'},{text:'WorkList mapping confirmed and tested',status:'Blocked'},{text:'Date/DOW coverage logic validated',status:'In Progress'},{text:'Staging data normalized',status:'Blocked'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from practice lead',status:'Not Started'}]},
+    MAA:{criteria:[{text:'RAFL lessons applied to MAA config',status:'Not Started'},{text:'SubPractice mapping confirmed and tested',status:'Blocked'},{text:'MAA staging data normalized',status:'Not Started'},{text:'All 4 modules regression-passed',status:'Not Started'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from MAA lead',status:'Not Started'}]},
+    RAF:{criteria:[{text:'RPCE logic finalized and validated',status:'Blocked'},{text:'Location mapping confirmed',status:'Blocked'},{text:'Integration interfaces stable (freeze Apr 28)',status:'Not Started'},{text:'Full 4-module regression on RAF staging',status:'Not Started'},{text:'No open P1 defects',status:'Not Started'},{text:'Bundle sign-off from RAF lead',status:'Not Started'}]}
+  },
+  plan:[
+    {date:'Apr 21–23',item:'WorkList + Location mapping resolution',practice:'RAFL',owner:'<fill>',status:'In Progress'},
+    {date:'Apr 22–24',item:'Staging data normalization sprint',practice:'All',owner:'<fill>',status:'In Progress'},
+    {date:'Apr 22–24',item:'Date/DOW coverage logic QA pass',practice:'RAFL',owner:'<fill>',status:'In Progress'},
+    {date:'Apr 23',item:'RPCE logic spec review',practice:'RAFL + RAF',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 24–25',item:'RAFL bundle integration test',practice:'RAFL',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 25',item:'SubPractice data ownership confirmed',practice:'MAA',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 27',item:'RAFL launch',practice:'RAFL',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 28',item:'Integration interface freeze',practice:'MAA + RAF',owner:'<fill>',status:'Not Started'},
+    {date:'Apr 28–May 2',item:'MAA 4-module validation',practice:'MAA',owner:'<fill>',status:'Not Started'},
+    {date:'May 4',item:'MAA launch',practice:'MAA',owner:'<fill>',status:'Not Started'},
+    {date:'May 5–12',item:'RAF full validation + RPCE/Location sign-off',practice:'RAF',owner:'<fill>',status:'Not Started'},
+    {date:'May 15',item:'RAF launch',practice:'RAF',owner:'<fill>',status:'Not Started'}
+  ],
+  script:{
+    open:'Core Platform Access is in active delivery. All four modules bundle and launch together per practice — no partial releases. RAFL is April 27, MAA May 4, RAF May 15. Program is Amber: engineering foundations complete; three active blockers need leadership decisions this week.',
+    wins:'1. Schema mapping and cross-database reporting design are done — foundational engineering complete.\n2. RAFL staging is provisioned; 4-module integration testing is underway.\n3. All functional specs signed off; team is execution-focused.',
+    risks:'1. WorkList mapping unresolved — must close by Apr 23 or RAFL slips.\n2. Staging data normalization incomplete — risks false-pass validation.\n3. Integration churn creating re-test cycles across all modules.',
+    asks:'1. Decision by Apr 23: approve WorkList mapping approach — RAFL gate blocker.\n2. Confirm SubPractice data ownership by Apr 25 — MAA Provider + Facility cannot start.\n3. Approve dedicated integration stability owner by Apr 25 — protects MAA and RAF.',
+    close:'With these three decisions resolved this week, RAFL stays on track at 75% confidence. MAA and RAF follow sequentially. We need leadership alignment on data ownership and integration stability to protect all three dates.',
+    execask:'1. WorkList mapping decision — Apr 23 — Owner: <fill>\n2. SubPractice data ownership — Apr 25 — Owner: <fill>\n3. Integration stability resource — Apr 25 — Owner: <fill>'
+  }
+};
+
+let charts = {};
+
+/* ── UTILS ── */
+function ragPill(r){const c={GREEN:'g',AMBER:'a',RED:'r'}[r]||'a';return `<span class="pill pill-${c}">${r}</span>`;}
+function statusBadge(s){return `<span class="badge ${STATUS_BADGE[s]||'b-ns'}">${s}</span>`;}
+function pbFill(pct,rag){return `<div class="pb"><div class="pb-fill" style="width:${pct}%;background:${RAG_COLOR[rag]||RAG_COLOR.AMBER}"></div></div>`;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function fmtDate(d){if(!d)return '';try{return new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
+
+/* ── STORAGE ── */
+function saveData(){
+  D.execSummary = document.getElementById('exec-summary').value;
+  ['open','wins','risks','asks','close','execask'].forEach(k=>{
+    const el=document.getElementById('script-'+k);
+    if(el) D.script[k]=el.value;
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(D)); } catch(e){ showToast('Storage full — export to back up'); return; }
+  const now = new Date();
+  document.getElementById('meta-lbl').innerHTML = `Last saved: ${now.toLocaleTimeString()} &nbsp;·&nbsp; <span id="today-lbl">${now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>`;
+  showToast('Saved successfully');
+}
+
+function loadData(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) D = JSON.parse(raw);
+  } catch(e) {}
+  renderAll();
+}
+
+function exportHTML(){
+  const blob = new Blob([document.documentElement.outerHTML],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'projectsymphony-dashboard.html';
+  a.click();
+  showToast('HTML exported — open it in any browser');
+}
+
+/* ── RENDER ALL ── */
+function renderAll(){
+  document.getElementById('exec-summary').value = D.execSummary;
+  document.getElementById('proj-name-display').textContent = D.settings.projName;
+  const pc = document.getElementById('prog-rag-pill');
+  pc.className = 'pill pill-'+{GREEN:'g',AMBER:'a',RED:'r'}[D.settings.progRag];
+  pc.textContent = 'Program: '+D.settings.progRag;
+  const now = new Date();
+  document.getElementById('today-lbl').textContent = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  renderKPIs(); renderConfidence(); renderLists();
+  renderBundles(); renderModuleMatrix(); renderRisks();
+  renderDecisions(); renderGongo(); renderPlan();
+  renderTimeline(); renderScripts(); renderCharts();
+}
+
+function renderKPIs(){
+  const now = new Date();
+  const d = s => Math.max(0,Math.ceil((new Date(s+'T12:00')-now)/86400000));
+  const openR = D.risks.filter(r=>r.rag==='RED').length;
+  const openD = D.decisions.filter(d=>d.status==='Open').length;
+  const allPcts = PRACTICES.flatMap(p=>MODULES.map(m=>D.bundles[p].modules[m].val||0));
+  const avgVal = Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length);
+  const items = [
+    {l:'Days to RAFL',v:d(D.settings.raflDate),s:fmtDate(D.settings.raflDate)},
+    {l:'Days to MAA',v:d(D.settings.maaDate),s:fmtDate(D.settings.maaDate)},
+    {l:'Days to RAF',v:d(D.settings.rafDate),s:fmtDate(D.settings.rafDate)},
+    {l:'Open P1 risks',v:openR,s:'RED status',danger:openR>0},
+    {l:'Open decisions',v:openD,s:'Needed this week',warn:openD>0},
+    {l:'Practices Go-ready',v:'0 / 3',s:'None cleared yet'},
+    {l:'Avg validation',v:avgVal+'%',s:'All modules avg'},
+    {l:'Modules in scope',v:4,s:'Must bundle all 4'}
+  ];
+  document.getElementById('kpi-row').innerHTML = items.map(k=>
+    `<div class="kpi"><div class="kpi-lbl">${k.l}</div>
+     <div class="kpi-val" style="${k.danger?'color:#E24B4A':k.warn?'color:#EF9F27':''}">${k.v}</div>
+     <div class="kpi-sub">${k.s}</div></div>`
+  ).join('');
+}
+
+function renderConfidence(){
+  document.getElementById('conf-panel').innerHTML = PRACTICES.map(p=>{
+    const b=D.bundles[p],c=b.conf;
+    const col=c>=80?'#639922':c>=65?'#EF9F27':'#E24B4A';
+    return `<div style="margin-bottom:13px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <strong>${p} — ${fmtDate(D.settings[p.toLowerCase()+'Date'])}</strong><span style="font-weight:700">${c}%</span></div>
+      <div class="conf-track"><div class="conf-fill" style="width:${c}%;background:${col}">${c}%</div></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:3px">${b.decision}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLists(){
+  ['completed','inprogress'].forEach(k=>{
+    document.getElementById(k+'-list').innerHTML = D[k].map((t,i)=>
+      `<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);cursor:pointer" onclick="openListModal('${k}',${i})">
+        <div style="width:6px;height:6px;border-radius:50%;background:${k==='completed'?'#639922':'#378ADD'};margin-top:5px;flex-shrink:0"></div>
+        <span style="font-size:12px;flex:1">${t}</span>
+        <span style="font-size:10px;color:var(--text3)">edit</span>
+      </div>`
+    ).join('');
+  });
+}
+
+function addListItem(k){ D[k].push('New item — click to edit'); renderLists(); openListModal(k, D[k].length-1); }
+function openListModal(k,i){
+  document.getElementById('li-list').value=k; document.getElementById('li-idx').value=i;
+  document.getElementById('li-text').value=D[k][i];
+  document.getElementById('modal-list-title').textContent = k==='completed'?'Edit completed item':'Edit in-progress item';
+  openModal('listItem');
+}
+function saveListItem(){ const k=document.getElementById('li-list').value,i=+document.getElementById('li-idx').value; D[k][i]=document.getElementById('li-text').value; renderLists(); closeModal('listItem'); }
+function deleteListItem(){ const k=document.getElementById('li-list').value,i=+document.getElementById('li-idx').value; D[k].splice(i,1); renderLists(); closeModal('listItem'); }
+
+function renderBundles(){
+  document.getElementById('bundle-cards').innerHTML = PRACTICES.map(p=>{
+    const b=D.bundles[p];
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div><div style="font-weight:700;font-size:15px">${p}</div><div style="font-size:11px;color:var(--text2)">${fmtDate(D.settings[p.toLowerCase()+'Date'])}</div></div>
+        ${ragPill(b.rag)}
+      </div>
+      ${MODULES.map(m=>{const mod=b.modules[m];return `<div style="margin-bottom:7px;cursor:pointer;padding:6px;border-radius:6px;border:0.5px solid var(--border)" onclick="openModuleModal('${p}','${m.replace(/'/g,"\\'")}')">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">${m}${statusBadge(mod.status)}<span style="font-size:11px;color:var(--text2)">${mod.pct}%</span></div>
+        ${pbFill(mod.pct,mod.rag)}<div style="font-size:10px;color:var(--text2);margin-top:3px">${mod.dep}</div>
+      </div>`;}).join('')}
+      <div style="border-top:0.5px solid var(--border);padding-top:9px;margin-top:6px;font-size:11px">
+        <div style="color:var(--text2)"><strong style="color:#E24B4A">Blocker:</strong> ${b.blocker}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+          <span style="font-size:11px;color:var(--text2)">Confidence</span>
+          <div class="conf-track"><div class="conf-fill" style="width:${b.conf}%;background:${b.conf>=80?'#639922':b.conf>=65?'#EF9F27':'#E24B4A'}">${b.conf}%</div></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModuleModal(p,m){
+  const mod=D.bundles[p].modules[m];
+  document.getElementById('em-practice').value=p; document.getElementById('em-module').value=m;
+  document.getElementById('em-status').value=mod.status;
+  document.getElementById('em-pct').value=mod.pct; document.getElementById('em-pct-val').textContent=mod.pct+'%';
+  document.getElementById('em-rag').value=mod.rag;
+  document.getElementById('em-dep').value=mod.dep;
+  document.getElementById('em-val').value=mod.val||0; document.getElementById('em-val-val').textContent=(mod.val||0)+'%';
+  document.getElementById('em-gaps').value=mod.gaps||'';
+  document.getElementById('modal-mod-title').textContent=`Edit ${m} — ${p}`;
+  openModal('editModule');
+}
+function saveModuleEdit(){
+  const p=document.getElementById('em-practice').value, m=document.getElementById('em-module').value;
+  D.bundles[p].modules[m]={...D.bundles[p].modules[m],
+    status:document.getElementById('em-status').value,
+    pct:+document.getElementById('em-pct').value,
+    rag:document.getElementById('em-rag').value,
+    dep:document.getElementById('em-dep').value,
+    val:+document.getElementById('em-val').value,
+    gaps:document.getElementById('em-gaps').value};
+  closeModal('editModule'); renderBundles(); renderModuleMatrix(); renderCharts();
+}
+
+function renderModuleMatrix(){
+  const crossDep={Forecasting:'Date/DOW logic; WorkList','Cost Intelligence':'Staging normalization',Provider:'RPCE logic; SubPractice',Facility:'Location; coverage logic'};
+  let html=`<table><thead><tr><th>Module</th>${PRACTICES.map(p=>`<th>${p} — ${fmtDate(D.settings[p.toLowerCase()+'Date'])}</th>`).join('')}<th>Cross-dep</th></tr></thead><tbody>`;
+  MODULES.forEach(m=>{
+    html+=`<tr><td><strong>${m}</strong></td>`;
+    PRACTICES.forEach(p=>{
+      const mod=D.bundles[p].modules[m];
+      html+=`<td style="cursor:pointer" onclick="openModuleModal('${p}','${m.replace(/'/g,"\\'")}')">
+        ${ragPill(mod.rag)} <strong>${mod.pct}%</strong>${pbFill(mod.pct,mod.rag)}
+        <div style="font-size:10px;color:var(--text2);margin-top:2px">${mod.dep}</div>
+        <div style="font-size:10px;color:var(--text3)">Val: ${mod.val||0}% · ${mod.gaps||'—'}</div>
+      </td>`;
+    });
+    html+=`<td style="font-size:11px;color:var(--text2)">${crossDep[m]||'—'}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('module-matrix').innerHTML=html;
+}
+
+function renderRisks(){
+  const reds=D.risks.filter(r=>r.rag==='RED').length, ambers=D.risks.filter(r=>r.rag==='AMBER').length;
+  document.getElementById('risk-summary-lbl').innerHTML=`${D.risks.length} risks &nbsp;·&nbsp; <span style="color:#E24B4A;font-weight:700">${reds} RED</span> &nbsp;·&nbsp; <span style="color:#EF9F27;font-weight:700">${ambers} AMBER</span>`;
+  let html=`<table><thead><tr><th>Risk</th><th>Practice</th><th>RAG</th><th>Owner</th><th>Due</th><th>Mitigation</th><th></th></tr></thead><tbody>`;
+  D.risks.forEach((r,i)=>{
+    html+=`<tr><td style="font-weight:600">${r.risk}</td><td>${r.practice}</td><td>${ragPill(r.rag)}</td><td>${r.owner}</td><td style="white-space:nowrap">${r.due}</td><td style="color:var(--text2)">${r.mitigation}</td><td><button class="btn-sm" onclick="openRiskModal(${i})">Edit</button></td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('risk-table').innerHTML=html;
+}
+function openRiskModal(i){
+  const r=i===null?{risk:'',practice:'',rag:'AMBER',likelihood:3,impact:3,mitigation:'',owner:'',due:''}:D.risks[i];
+  document.getElementById('er-idx').value=i===null?-1:i;
+  document.getElementById('er-risk').value=r.risk; document.getElementById('er-practice').value=r.practice;
+  document.getElementById('er-rag').value=r.rag;
+  document.getElementById('er-likelihood').value=r.likelihood; document.getElementById('er-lh-val').textContent=r.likelihood;
+  document.getElementById('er-impact').value=r.impact; document.getElementById('er-imp-val').textContent=r.impact;
+  document.getElementById('er-owner').value=r.owner; document.getElementById('er-due').value=r.due;
+  document.getElementById('er-mitigation').value=r.mitigation;
+  document.getElementById('modal-risk-title').textContent=i===null?'Add risk':'Edit risk';
+  document.getElementById('er-delete-btn').style.display=i===null?'none':'inline-block';
+  openModal('editRisk');
+}
+function saveRisk(){
+  const i=+document.getElementById('er-idx').value;
+  const obj={risk:document.getElementById('er-risk').value,practice:document.getElementById('er-practice').value,rag:document.getElementById('er-rag').value,likelihood:+document.getElementById('er-likelihood').value,impact:+document.getElementById('er-impact').value,owner:document.getElementById('er-owner').value,due:document.getElementById('er-due').value,mitigation:document.getElementById('er-mitigation').value};
+  if(i===-1) D.risks.push(obj); else D.risks[i]=obj;
+  closeModal('editRisk'); renderRisks(); renderCharts();
+}
+function deleteRisk(){ const i=+document.getElementById('er-idx').value; if(i>=0) D.risks.splice(i,1); closeModal('editRisk'); renderRisks(); renderCharts(); }
+
+function renderDecisions(){
+  document.getElementById('decision-cards').innerHTML = D.decisions.map((d,i)=>`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;margin-bottom:5px">${d.decision}</div>
+        <div style="font-size:11px;color:var(--text2)">Needed by <strong>${d.needed}</strong> &nbsp;·&nbsp; Practice: ${d.practice} &nbsp;·&nbsp; Owner: ${d.owner}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">Consequence: ${d.consequence}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${d.status==='Resolved'?'<span class="pill pill-g">Resolved</span>':d.status==='In Review'?'<span class="pill pill-b">In review</span>':'<span class="pill pill-r">Open</span>'}
+        <button class="btn-sm" onclick="openDecisionModal(${i})">Edit</button>
+      </div>
+    </div>
+  </div>`).join('');
+}
+function openDecisionModal(i){
+  const d=i===null?{decision:'',needed:'',practice:'',owner:'',status:'Open',consequence:''}:D.decisions[i];
+  document.getElementById('ed-idx').value=i===null?-1:i;
+  ['decision','needed','practice','owner','consequence'].forEach(k=>document.getElementById('ed-'+k).value=d[k]);
+  document.getElementById('ed-status').value=d.status;
+  document.getElementById('modal-dec-title').textContent=i===null?'Add decision':'Edit decision';
+  document.getElementById('ed-delete-btn').style.display=i===null?'none':'inline-block';
+  openModal('editDecision');
+}
+function saveDecision(){
+  const i=+document.getElementById('ed-idx').value;
+  const obj={decision:document.getElementById('ed-decision').value,needed:document.getElementById('ed-needed').value,practice:document.getElementById('ed-practice').value,owner:document.getElementById('ed-owner').value,status:document.getElementById('ed-status').value,consequence:document.getElementById('ed-consequence').value};
+  if(i===-1) D.decisions.push(obj); else D.decisions[i]=obj;
+  closeModal('editDecision'); renderDecisions();
+}
+function deleteDecision(){ const i=+document.getElementById('ed-idx').value; if(i>=0) D.decisions.splice(i,1); closeModal('editDecision'); renderDecisions(); }
+
+function renderGongo(){
+  const icons={Done:'✓','In Progress':'~',Blocked:'✗','Not Started':'–'};
+  const icColors={Done:'#639922','In Progress':'#EF9F27',Blocked:'#E24B4A','Not Started':'#9b9b96'};
+  document.getElementById('gongo-panels').innerHTML = PRACTICES.map(p=>{
+    const g=D.gongo[p];
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px"><strong>${p}</strong>${ragPill(D.bundles[p].rag)}</div>
+      ${g.criteria.map((c,i)=>`<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);cursor:pointer" onclick="openCriterionModal('${p}',${i})">
+        <span style="font-size:13px;width:16px;text-align:center;color:${icColors[c.status]||'#9b9b96'};font-weight:700">${icons[c.status]||'–'}</span>
+        <span style="font-size:11px;flex:1">${c.text}</span>
+        <span style="font-size:10px;color:var(--text3)">${c.status}</span>
+      </div>`).join('')}
+      <button class="btn-sm" style="margin-top:9px" onclick="addCriterion('${p}')">+ Add</button>
+    </div>`;
+  }).join('');
+}
+function openCriterionModal(p,i){
+  const c=D.gongo[p].criteria[i];
+  document.getElementById('ec-practice').value=p; document.getElementById('ec-idx').value=i;
+  document.getElementById('ec-text').value=c.text; document.getElementById('ec-status').value=c.status;
+  document.getElementById('modal-crit-title').textContent=`Edit criterion — ${p}`;
+  openModal('editCriterion');
+}
+function saveCriterion(){ const p=document.getElementById('ec-practice').value,i=+document.getElementById('ec-idx').value; D.gongo[p].criteria[i]={text:document.getElementById('ec-text').value,status:document.getElementById('ec-status').value}; closeModal('editCriterion'); renderGongo(); }
+function deleteCriterion(){ const p=document.getElementById('ec-practice').value,i=+document.getElementById('ec-idx').value; D.gongo[p].criteria.splice(i,1); closeModal('editCriterion'); renderGongo(); }
+function addCriterion(p){ D.gongo[p].criteria.push({text:'New criterion',status:'Not Started'}); renderGongo(); openCriterionModal(p,D.gongo[p].criteria.length-1); }
+
+function renderPlan(){
+  let html=`<table><thead><tr><th>Date</th><th>Activity</th><th>Practice</th><th>Owner</th><th>Status</th><th></th></tr></thead><tbody>`;
+  D.plan.forEach((r,i)=>{
+    html+=`<tr><td style="white-space:nowrap">${r.date}</td><td>${r.item}</td><td>${r.practice}</td><td>${r.owner}</td><td>${statusBadge(r.status)}</td><td><button class="btn-sm" onclick="openPlanModal(${i})">Edit</button></td></tr>`;
+  });
+  document.getElementById('plan-table').innerHTML=html+'</tbody></table>';
+}
+function openPlanModal(i){
+  const r=i===null?{date:'',item:'',practice:'',owner:'',status:'Not Started'}:D.plan[i];
+  document.getElementById('ep-idx').value=i===null?-1:i;
+  document.getElementById('ep-date').value=r.date; document.getElementById('ep-item').value=r.item;
+  document.getElementById('ep-practice').value=r.practice; document.getElementById('ep-owner').value=r.owner;
+  document.getElementById('ep-status').value=r.status;
+  document.getElementById('modal-plan-title').textContent=i===null?'Add plan item':'Edit plan item';
+  document.getElementById('ep-delete-btn').style.display=i===null?'none':'inline-block';
+  openModal('editPlan');
+}
+function savePlan(){
+  const i=+document.getElementById('ep-idx').value;
+  const obj={date:document.getElementById('ep-date').value,item:document.getElementById('ep-item').value,practice:document.getElementById('ep-practice').value,owner:document.getElementById('ep-owner').value,status:document.getElementById('ep-status').value};
+  if(i===-1) D.plan.push(obj); else D.plan[i]=obj;
+  closeModal('editPlan'); renderPlan();
+}
+function deletePlan(){ const i=+document.getElementById('ep-idx').value; if(i>=0) D.plan.splice(i,1); closeModal('editPlan'); renderPlan(); }
+
+function renderTimeline(){
+  const total=25;
+  const tracks=[
+    {label:'Data normalization',start:1,end:3,color:'#534AB7'},
+    {label:'DOW / QA pass',start:1,end:3,color:'#534AB7'},
+    {label:'WorkList fix',start:0,end:2,color:'#E24B4A'},
+    {label:'RAFL validation',start:2,end:5,color:'#639922'},
+    {label:'RAFL go/no-go',start:5,end:6,color:'#639922'},
+    {label:'MAA prep',start:4,end:7,color:'#EF9F27'},
+    {label:'Integration freeze',start:7,end:7.5,color:'#185FA5'},
+    {label:'MAA validation',start:7,end:12,color:'#EF9F27'},
+    {label:'MAA go/no-go',start:12,end:13,color:'#EF9F27'},
+    {label:'RAF validation',start:11,end:23,color:'#E24B4A'},
+    {label:'RAF go/no-go',start:23,end:25,color:'#E24B4A'}
+  ];
+  const ms=[{day:6,color:'#639922',lbl:'RAFL'},{day:13,color:'#EF9F27',lbl:'MAA'},{day:24,color:'#E24B4A',lbl:'RAF'}];
+  let html=`<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-bottom:14px">
+    ${ms.map(m=>`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:${m.color};border-radius:2px;display:inline-block"></span>${m.lbl} ${m.lbl==='RAFL'?fmtDate(D.settings.raflDate):m.lbl==='MAA'?fmtDate(D.settings.maaDate):fmtDate(D.settings.rafDate)}</span>`).join('')}
+  </div>`;
+  tracks.forEach(t=>{
+    const left=Math.round((t.start/total)*100), width=Math.max(Math.round(((t.end-t.start)/total)*100),2);
+    html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <div style="font-size:10px;color:var(--text2);min-width:115px;text-align:right">${t.label}</div>
+      <div style="flex:1;background:var(--bg2);border-radius:3px;height:20px;position:relative;overflow:hidden">
+        <div style="position:absolute;left:${left}%;width:${width}%;height:20px;background:${t.color};border-radius:3px;display:flex;align-items:center;padding:0 5px;font-size:10px;font-weight:600;color:white;overflow:hidden;white-space:nowrap">${width>9?t.label:''}</div>
+        ${ms.map(m=>`<div style="position:absolute;left:${Math.round((m.day/total)*100)}%;width:1.5px;height:20px;background:${m.color};opacity:.6"></div>`).join('')}
+      </div>
+    </div>`;
+  });
+  html+=`<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px;padding-left:123px"><span>Apr 21</span><span>Apr 25</span><span>Apr 27</span><span>May 1</span><span>May 4</span><span>May 8</span><span>May 12</span><span>May 15</span></div>`;
+  document.getElementById('timeline-panel').innerHTML=html;
+}
+
+function renderScripts(){
+  ['open','wins','risks','asks','close','execask'].forEach(k=>{
+    const el=document.getElementById('script-'+k); if(el) el.value=D.script[k];
+  });
+}
+
+/* ── BUNDLE MODAL ── */
+function openModal(id, arg){
+  if(id==='editBundle'){
+    const p=arg, b=D.bundles[p];
+    document.getElementById('eb-practice').value=p;
+    document.getElementById('modal-bundle-title').textContent='Edit bundle — '+p;
+    document.getElementById('eb-rag').value=b.rag;
+    document.getElementById('eb-blocker').value=b.blocker;
+    document.getElementById('eb-decision').value=b.decision;
+    document.getElementById('eb-conf').value=b.conf;
+    document.getElementById('eb-conf-val').textContent=b.conf+'%';
+    document.getElementById('eb-modules-section').innerHTML=MODULES.map(m=>{
+      const mk=m.replace(/ /g,'_'), mod=b.modules[m];
+      return `<div class="card-surface" style="margin-bottom:8px">
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px">${m}</div>
+        <div class="form-grid">
+          <div class="form-row"><label>% Complete: <span id="ebm-pctv-${mk}">${mod.pct}%</span></label>
+            <input type="range" min="0" max="100" step="1" id="ebm-pct-${mk}" value="${mod.pct}" oninput="document.getElementById('ebm-pctv-${mk}').textContent=this.value+'%'"></div>
+          <div class="form-row"><label>RAG</label>
+            <select id="ebm-rag-${mk}"><option ${mod.rag==='GREEN'?'selected':''} value="GREEN">GREEN</option><option ${mod.rag==='AMBER'?'selected':''} value="AMBER">AMBER</option><option ${mod.rag==='RED'?'selected':''} value="RED">RED</option></select></div>
+          <div class="form-row" style="grid-column:span 2"><label>Status</label>
+            <select id="ebm-status-${mk}"><option ${mod.status==='Not Started'?'selected':''}>Not Started</option><option ${mod.status==='In Progress'?'selected':''}>In Progress</option><option ${mod.status==='Done'?'selected':''}>Done</option><option ${mod.status==='At Risk'?'selected':''}>At Risk</option><option ${mod.status==='Blocked'?'selected':''}>Blocked</option></select></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if(id==='settings'){
+    document.getElementById('s-projname').value=D.settings.projName;
+    document.getElementById('s-prog-rag').value=D.settings.progRag;
+    document.getElementById('s-rafl-date').value=D.settings.raflDate;
+    document.getElementById('s-maa-date').value=D.settings.maaDate;
+    document.getElementById('s-raf-date').value=D.settings.rafDate;
+  }
+  document.getElementById('overlay-'+id).classList.add('open');
+}
+function closeModal(id){ document.getElementById('overlay-'+id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function saveBundleEdit(){
+  const p=document.getElementById('eb-practice').value;
+  D.bundles[p].rag=document.getElementById('eb-rag').value;
+  D.bundles[p].blocker=document.getElementById('eb-blocker').value;
+  D.bundles[p].decision=document.getElementById('eb-decision').value;
+  D.bundles[p].conf=+document.getElementById('eb-conf').value;
+  MODULES.forEach(m=>{
+    const k=m.replace(/ /g,'_');
+    D.bundles[p].modules[m].pct=+document.getElementById(`ebm-pct-${k}`).value;
+    D.bundles[p].modules[m].rag=document.getElementById(`ebm-rag-${k}`).value;
+    D.bundles[p].modules[m].status=document.getElementById(`ebm-status-${k}`).value;
+  });
+  closeModal('editBundle'); renderBundles(); renderModuleMatrix(); renderConfidence(); renderCharts();
+}
+
+function saveSettings(){
+  D.settings.projName=document.getElementById('s-projname').value;
+  D.settings.progRag=document.getElementById('s-prog-rag').value;
+  D.settings.raflDate=document.getElementById('s-rafl-date').value;
+  D.settings.maaDate=document.getElementById('s-maa-date').value;
+  D.settings.rafDate=document.getElementById('s-raf-date').value;
+  closeModal('settings'); renderAll(); showToast('Settings updated');
+}
+
+/* ── CHARTS ── */
+function renderCharts(){
+  const valData=MODULES.map(m=>({r:D.bundles.RAFL.modules[m].val||0,m:D.bundles.MAA.modules[m].val||0,f:D.bundles.RAF.modules[m].val||0}));
+  if(charts.val){charts.val.destroy();}
+  const vc=document.getElementById('chart-validation');
+  if(vc) charts.val=new Chart(vc,{type:'bar',data:{labels:MODULES.map(m=>m.length>10?m.slice(0,10)+'…':m),datasets:[{label:'RAFL',data:valData.map(d=>d.r),backgroundColor:'#378ADD'},{label:'MAA',data:valData.map(d=>d.m),backgroundColor:'#EF9F27'},{label:'RAF',data:valData.map(d=>d.f),backgroundColor:'#E24B4A'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
+
+  const compData=MODULES.map(m=>Math.round(PRACTICES.reduce((a,p)=>a+D.bundles[p].modules[m].pct,0)/PRACTICES.length));
+  if(charts.comp){charts.comp.destroy();}
+  const cc=document.getElementById('chart-completion');
+  if(cc) charts.comp=new Chart(cc,{type:'bar',data:{labels:MODULES.map(m=>m.length>12?m.slice(0,12)+'…':m),datasets:[{label:'% complete',data:compData,backgroundColor:'#1D9E75',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}},y:{ticks:{font:{size:11}}}}}});
+
+  if(charts.risk){charts.risk.destroy();}
+  const rc=document.getElementById('chart-risk');
+  if(rc){
+    const byRag=rag=>D.risks.filter(r=>r.rag===rag).map(r=>({x:r.likelihood,y:r.impact,label:r.risk}));
+    charts.risk=new Chart(rc,{type:'scatter',data:{datasets:[{label:'RED',data:byRag('RED'),backgroundColor:'#E24B4A',pointRadius:9,pointStyle:'circle'},{label:'AMBER',data:byRag('AMBER'),backgroundColor:'#EF9F27',pointRadius:9,pointStyle:'triangle'},{label:'GREEN',data:byRag('GREEN'),backgroundColor:'#639922',pointRadius:9,pointStyle:'rect'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw.label||'Risk'}}},scales:{x:{min:0.5,max:5.5,title:{display:true,text:'Likelihood →',font:{size:11}},ticks:{callback:v=>[0,'','Low','','Med','','High'][v]||'',font:{size:10}}},y:{min:0.5,max:5.5,title:{display:true,text:'Impact →',font:{size:11}},ticks:{callback:v=>[0,'','Low','','Med','','High'][v]||'',font:{size:10}}}}}});
+  }
+}
+
+/* ── NAV ── */
+function showPane(id,btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('on');
+  btn.classList.add('active');
+  setTimeout(renderCharts,60);
+}
+
+loadData();
+</script>
+</body>
+</html>
